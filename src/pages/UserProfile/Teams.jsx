@@ -1,14 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './Components/Header'
+import { useLocation } from 'react-router-dom';
+import { currentUser } from '../../Api/auth'
 
 export default function Teams() {
+    const location = useLocation();
+    const userId = location.pathname.split('/').pop();
+
+    const [user, setUser] = useState(null);
+
+    const getCurrentUser = async () => {
+        const id = userId;
+        if (id) {
+            const { response } = await currentUser({id});
+
+            if (response.data.success) {
+                setUser(response.data.user);
+            }
+        }
+    } 
+
+    useEffect(() => {
+        getCurrentUser();
+    }, []);
+
     return (
         <>
             {/* Content */}
             <div className="content container-fluid">
                 <div className="row justify-content-lg-center">
                     <div className="col-lg-10">
-                        <Header />
+                        <Header user={user} />
                         <div className="row align-items-center mb-5">
                             <div className="col">
                                 <h3 className="mb-0">7 teams</h3>

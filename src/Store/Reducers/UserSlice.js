@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+    _id: "",
     firstname: "",
     lastname: "",
     email: "",
@@ -14,6 +15,7 @@ const UserSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action) => {
+            state._id = action.payload._id || state._id;
             state.firstname = action.payload.firstname || state.firstname;
             state.lastname = action.payload.lastname || state.lastname;
             state.email = action.payload.email || state.email;
@@ -24,6 +26,7 @@ const UserSlice = createSlice({
             localStorage.setItem('user', JSON.stringify(action.payload));
         },
         removeUser: (state) => {
+            state._id = "";
             state.firstname = "";
             state.lastname = "";
             state.email = "";

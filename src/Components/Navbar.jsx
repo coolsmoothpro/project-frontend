@@ -1,17 +1,19 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { removeUser } from '../Store/Reducers/UserSlice';
 import { removeToken } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import { AVATAR } from '../utils/Constant';
+import { setStatus, currentUser } from '../Api/auth';
 
-export default function Navbar() {
-    const [isExpanded, setisExpanded] = useState(true);
-
-    const user = JSON.parse(localStorage.getItem('user'));
+export default function Navbar() {    
+    const loggedUser = JSON.parse(localStorage.getItem('user')) || null;
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const [isExpanded, setisExpanded] = useState(true);
+    const [user, setUser] = useState(loggedUser);
 
     const logout = () => {
         dispatch(removeUser());
@@ -23,6 +25,31 @@ export default function Navbar() {
     const goToPage = (page) => {
         navigate(page);
     }
+
+    const getCurrentUser = async () => {
+        const id = loggedUser._id;
+        if (id) {
+            const { response } = await currentUser({id});
+
+            if (response.data.success) {
+                setUser(response.data.user);
+            }
+        }
+    }
+
+    const handleSetStatus = async (status) => {
+        const id = user?._id;
+
+        const { response } = await setStatus({ id, status });
+
+        if (response.data.success) {
+            getCurrentUser();
+        }
+    }
+
+    useEffect(() => {
+
+    }, [user]);
 
     return (
         <header id="header" className="navbar navbar-expand-lg navbar-fixed navbar-height navbar-container navbar-bordered bg-white">
@@ -647,6 +674,21 @@ export default function Navbar() {
                                     <div className="avatar avatar-sm avatar-circle">
                                         <img className="avatar-img" src={user?.avatar || AVATAR} alt="Image Description" />
                                         <span className="avatar-status avatar-sm-status avatar-status-success" />
+                                        {
+                                            user?.status === 'Available' ? (
+                                                <>
+                                                    <span className="avatar-status avatar-sm-status avatar-status-success" />
+                                                </>
+                                            ) : user?.status === 'Away' ? (
+                                                <>
+                                                    <span className="avatar-status avatar-sm-status avatar-status-warning" />
+                                                </>
+                                            ) : user?.status === 'Busy' ? (
+                                                <>
+                                                    <span className="avatar-status avatar-sm-status avatar-status-danger" />
+                                                </>
+                                            ) : null
+                                        }
                                     </div>
                                 </a>
                                 <div className="dropdown-menu dropdown-menu-end navbar-dropdown-menu navbar-dropdown-menu-borderless navbar-dropdown-account" aria-labelledby="accountNavbarDropdown" style={{ width: '16rem' }}>
@@ -666,23 +708,23 @@ export default function Navbar() {
                                     <div className="dropdown">
                                         <a className="navbar-dropdown-submenu-item dropdown-item dropdown-toggle" href="javascript:;" id="navSubmenuPagesAccountDropdown1" data-bs-toggle="dropdown" aria-expanded="false">Set status</a>
                                         <div className="dropdown-menu dropdown-menu-end navbar-dropdown-menu navbar-dropdown-menu-borderless navbar-dropdown-sub-menu" aria-labelledby="navSubmenuPagesAccountDropdown1">
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" onClick={()=>handleSetStatus('Available')} href="javascript:;">
                                                 <span className="legend-indicator bg-success me-1" /> Available
                                             </a>
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" onClick={()=>handleSetStatus('Busy')} href="javascript:;">
                                                 <span className="legend-indicator bg-danger me-1" /> Busy
                                             </a>
-                                            <a className="dropdown-item" href="#">
-                                                <span className="legend-indicator bg-warning me-1" /> Away
+                                            <a className="dropdown-item" onClick={()=>handleSetStatus('Away')} href="javascript:;">
+                                                <span className="legend-indicator bg-warning me-1" /> Away  
                                             </a>
-                                            <div className="dropdown-divider" />
-                                            <a className="dropdown-item" href="#"> Reset status
-                                            </a>
+                                            {/* <div className="dropdown-divider" /> */}
+                                            {/* <a className="dropdown-item" href="#"> Reset status
+                                            </a> */}
                                         </div>
                                     </div>
                                     {/* End Dropdown */}
-                                    <a className="dropdown-item" onClick={() => goToPage("/my-profile")}>Profile &amp; account</a>
-                                    <a className="dropdown-item" onClick={() => goToPage("/account-settings")}>Settings</a>
+                                    <a className="dropdown-item" onClick={() => goToPage("/my-profile")} href="javascript:;">Profile &amp; account</a>
+                                    <a className="dropdown-item" onClick={() => goToPage("/account-settings")} href="javascript:;">Settings</a>
                                     <div className="dropdown-divider" />
                                     <a className="dropdown-item" href="#">
                                         <div className="d-flex align-items-center">

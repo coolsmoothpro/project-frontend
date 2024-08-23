@@ -1,6 +1,9 @@
-import React from 'react'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Invoice() {
+    const navigate = useNavigate();
+
     return (
         <>
             <div className="content container-fluid">
@@ -11,7 +14,7 @@ export default function Invoice() {
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
-                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Account</a></li>
+                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;" onClick={() => navigate('/account-settings')}>Account</a></li>
                                     <li className="breadcrumb-item active" aria-current="page">Invoice</li>
                                 </ol>
                             </nav>

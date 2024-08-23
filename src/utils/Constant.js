@@ -1,9 +1,9 @@
-// export const SERVER_URL = "http://46.246.120.148:8475/api/v1";
-// export const BASE_ULR = "http://46.246.120.148:8475";
-// export const DOWNLOAD_ULR = "http://46.246.120.148:8475";
-export const SERVER_URL = "http://localhost:8475/api/v1";
-export const BASE_ULR = "http://localhost:3000";
-export const DOWNLOAD_ULR = "http://localhost:8475";
+export const SERVER_URL = "http://46.246.120.148:8475/api/v1";
+export const BASE_ULR = "http://46.246.120.148:8475";
+export const DOWNLOAD_ULR = "http://46.246.120.148:8475";
+// export const SERVER_URL = "http://localhost:8475/api/v1";
+// export const BASE_ULR = "http://localhost:3000";
+// export const DOWNLOAD_ULR = "http://localhost:8475";
 export const LOGO = BASE_ULR + "/assets/svg/logos/logo.svg";
 export const SHORT_LOGO = BASE_ULR + "/assets/svg/logos/logo-short.svg";
 export const AVATAR = BASE_ULR + "/assets/img/160x160/img1.jpg";

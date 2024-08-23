@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './Component/Header';
 import { useSelector } from 'react-redux';
 
-import { updateProject, sendInvite } from '../../Api/project';
+import { updateProject, sendInvite, getProject } from '../../Api/project';
 
 import { toast, ToastContainer } from 'react-toastify';
 import { PROJECT_LOGO } from '../../utils/Constant';
@@ -49,15 +49,6 @@ export default function ProjectSetting() {
         }
     };
 
-    const setProject = () => {
-        setProjectLogo(project?.projectLogo);
-        setProjectName(project?.projectName);
-        setProjectDescription(project?.projectDescription);
-        setTerms(project?.terms);
-        setExpectedValue(project?.expectedValue);
-        setMilestone(project?.milestone);
-    }
-
     const handleInvite = async () => {
         const { response } = await sendInvite({email, projectName});
 
@@ -68,8 +59,24 @@ export default function ProjectSetting() {
         }
     }
 
+    const getProjectById = async () => {
+        const id = projectId;
+        const { response } = await getProject({id});
+
+        if (response.data.success) {
+            const project = response.data.project;
+
+            setProjectLogo(project?.projectLogo);
+            setProjectName(project?.projectName);
+            setProjectDescription(project?.projectDescription);
+            setTerms(project?.terms);
+            setExpectedValue(project?.expectedValue);
+            setMilestone(project?.milestone);
+        }
+    }
+
     useEffect(() => {
-        setProject();
+        getProjectById();
 
     }, [project]);
 

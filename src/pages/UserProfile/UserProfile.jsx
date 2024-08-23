@@ -1,18 +1,34 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './Components/Header'
 import { useLocation } from 'react-router-dom';
+import { currentUser } from '../../Api/auth';
 
 export default function UserProfile() {
     const location = useLocation();
     const userId = location.pathname.split('/').pop();
 
-    console.log('id', userId);
+    const [user, setUser] = useState(null);
+
+    const getCurrentUser = async () => {
+        const id = userId;
+        if (id) {
+            const { response } = await currentUser({id});
+
+            if (response.data.success) {
+                setUser(response.data.user);
+            }
+        }
+    } 
+
+    useEffect(() => {
+        getCurrentUser();
+    }, []);
     
     return (
         <div className="content container-fluid">
             <div className="row justify-content-lg-center">
                 <div className="col-lg-10">
-                    <Header />
+                    <Header user = {user} />
                     <div className="row">
                         <div className="col-lg-4">
                             {/* Card */}
@@ -41,12 +57,12 @@ export default function UserProfile() {
                                 <div className="card-body">
                                     <ul className="list-unstyled list-py-2 text-dark mb-0">
                                         <li className="pb-0"><span className="card-subtitle">About</span></li>
-                                        <li><i className="bi-person dropdown-item-icon" /> Ella Lauda</li>
-                                        <li><i className="bi-briefcase dropdown-item-icon" /> No department</li>
-                                        <li><i className="bi-building dropdown-item-icon" /> Htmlstream</li>
+                                        <li><i className="bi-person dropdown-item-icon" /> {user?.firstname} {user?.lastname}</li>
+                                        <li><i className="bi-briefcase dropdown-item-icon" /> {user?.department || "No department"}</li>
+                                        <li><i className="bi-building dropdown-item-icon" /> {user?.organization || "No Organization"}</li>
                                         <li className="pt-4 pb-0"><span className="card-subtitle">Contacts</span></li>
-                                        <li><i className="bi-at dropdown-item-icon" /> ella@site.com</li>
-                                        <li><i className="bi-phone dropdown-item-icon" /> +1 (609) 972-22-22</li>
+                                        <li><i className="bi-at dropdown-item-icon" /> {user?.email}</li>
+                                        <li><i className="bi-phone dropdown-item-icon" />{user?.phone}</li>
                                         <li className="pt-4 pb-0"><span className="card-subtitle">Teams</span></li>
                                         <li><i className="bi-people dropdown-item-icon" /> Member of 7 teams</li>
                                         <li><i className="bi-stickies dropdown-item-icon" /> Working on 8 projects</li>

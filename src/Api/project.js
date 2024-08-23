@@ -111,6 +111,7 @@ export const sendInvite = async (payload) => {
 
 export const acceptInvite = async (payload) => {
     try {
+        console.log('welcome');
         const response = await axios.post(`${SERVER_URL}/project/accept-invite`, payload);
 
         if (response.data && response.status == 200) {

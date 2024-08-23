@@ -8,10 +8,10 @@ import { AVATAR } from '../../utils/Constant';
 export default function Settings() {    
     const userData = JSON.parse(localStorage.getItem('user')) || null;
 
-    const getCurrentUser = async () => {        
-        const email = userData.email;
-        if (email) {
-            const { response } = await currentUser({email});
+    const getCurrentUser = async () => {
+        const id = userData._id;
+        if (id) {
+            const { response } = await currentUser({id});
 
             if (response.data.success) {
                 const data = response.data.user;

@@ -154,7 +154,7 @@ export default function Sidebar() {
                                 </div>
                                 {/* End Collapse */}
                                 {/* Collapse */}
-                                <div className="nav-item">
+                                {/* <div className="nav-item">
                                     <a className={getClassLinkForUserProfile()} onClick={() => goToPage('/profile')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesUserProfileMenu" aria-expanded={isAriaExpanded(['/profile', '/team', '/projects', '/connections'])} aria-controls="navbarVerticalMenuPagesUserProfileMenu">
                                         <i className="bi-person nav-icon" />
                                         <span className="nav-link-title">User Profile <span className="badge bg-primary rounded-pill ms-1">5</span></span>
@@ -166,7 +166,7 @@ export default function Sidebar() {
                                         <a className={getNavLinkClass('/connections')} onClick={() => goToPage('/connections')}>Connections</a>
                                         <a className={getNavLinkClass('/my-profile')} onClick={() => goToPage('/my-profile')}>My Profile</a>
                                     </div>
-                                </div>
+                                </div> */}
                                 {/* End Collapse */}
                                 {/* Collapse */}
                                 <div className="nav-item">

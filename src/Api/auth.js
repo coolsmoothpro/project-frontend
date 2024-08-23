@@ -70,6 +70,22 @@ export const updateUser = async (payload) => {
     }
 }
 
+export const deleteUser = async (payload) => {
+    try {
+        const response = await axios.post(`${SERVER_URL}/auth/delete-user`, payload);
+        if (response.data && response.status == 200) {;
+            return { response };  // This now correctly returns the user object
+
+        } else {
+            console.error('Login failed with status:', response);
+            return { response }
+        }
+    } catch (err) {
+        console.error('Error during login:', err);
+        throw err;  // Optionally re-throw to handle the error in the component
+    }
+}
+
 export const updatePassword = async (payload) => {
     try {
         const response = await axios.post(`${SERVER_URL}/auth/update-password`, payload);
@@ -105,6 +121,22 @@ export const forgetPassword = async (payload) => {
 export const resetAction = async (payload) => {
     try {
         const response = await axios.post(`${SERVER_URL}/auth/reset-password-action`, payload);
+        if (response.data && response.status == 200) {;
+            return { response };  // This now correctly returns the user object
+
+        } else {
+            console.error('Login failed with status:', response);
+            return { response }
+        }
+    } catch (err) {
+        console.error('Error during login:', err);
+        throw err;  // Optionally re-throw to handle the error in the component
+    }
+}
+
+export const setStatus = async (payload) => {
+    try {
+        const response = await axios.post(`${SERVER_URL}/auth/set-status`, payload);
         if (response.data && response.status == 200) {;
             return { response };  // This now correctly returns the user object
 

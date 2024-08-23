@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { userList } from '../../Api/user';
 import { toast } from 'react-toastify';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { updateUser } from '../../Api/auth';
+import { updateUser, deleteUser } from '../../Api/auth';
 
 
 export default function User() {
@@ -104,6 +104,17 @@ export default function User() {
         } else {
             toast.error("Failed!");
             return;
+        }
+    }
+
+    const handleDeleteClick = async (id) => {
+        const { response } = await deleteUser({id});
+
+        if (response.data.success) {
+            setUpdate(!update);
+            toast.success(response.data.message);
+        } else {
+            toast.error("Failed!");
         }
     }
 
@@ -686,7 +697,22 @@ export default function User() {
                                     </td>
                                     <td>{user?.location?.country}</td>
                                     <td>
-                                        <span className="legend-indicator bg-success" />Active
+                                        {
+                                            user?.status === 'Available' ? (
+                                                <>
+                                                    <span className="legend-indicator bg-success" />Active
+                                                </>
+                                            ) : user?.status === 'Away' ? (
+                                                <>
+                                                    <span className="legend-indicator bg-warning" />Away
+                                                </>
+                                            ) : user?.status === 'Busy' ? (
+                                                <>
+                                                    <span className="legend-indicator bg-danger" />Busy
+                                                </>
+                                            ) : null
+                                        }
+
                                     </td>
                                     <td>
                                         {user?.phone}
@@ -702,6 +728,9 @@ export default function User() {
                                         (<td>
                                             <button onClick={() => handleEditClick(user)} type="button" className="btn btn-white btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal">
                                                 <i className="bi-pencil-fill me-1" /> Edit
+                                            </button> &nbsp;
+                                            <button onClick={() => handleDeleteClick(user?._id)} type="button" className="btn btn-danger btn-sm">
+                                                Delete
                                             </button>
                                         </td>)
                                     }

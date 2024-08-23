@@ -27,6 +27,7 @@ export default function AddUser() {
     const [organization, setOrganization] = useState("");
     const [department, setDepartment] = useState("");
     const [accountType, setAccountType] = useState("");
+    const [status, setStatus] = useState("Available");
     const [location, setLocation] = useState({
         country: "",
         city: "",
@@ -118,7 +119,7 @@ export default function AddUser() {
     const handleComplete = async () => {
         if (completedSteps() === totalSteps() - 1) {
 
-            const { response } = await createUser({avatar, email, firstname, lastname, role, phone, organization, department, accountType, location, address1, address2, zipcode, password});
+            const { response } = await createUser({avatar, email, firstname, lastname, role, phone, organization, department, accountType, status, location, address1, address2, zipcode, password});
             
             if (response.data.success) {
                 toast.success("User has been created successfully!");
@@ -136,6 +137,23 @@ export default function AddUser() {
     const handleReset = () => {
         setActiveStep(0);
         setCompleted({});
+        setAvatar("");
+        setEmail("");
+        setFirstName("");
+        setLastName("");
+        setOrganization("");
+        setDepartment("");
+        setAccountType("");
+        setLocation({
+            country: "",
+            city: "",
+            state: ""
+        });
+        setAddress1("");
+        setAddress2("");
+        setZipCode("");
+        setPassword("");
+        setConfirmPassword("");
     };
 
     useEffect(() => {
@@ -191,7 +209,7 @@ export default function AddUser() {
                                                         <a className="btn btn-white me-3" onClick={handleReset} >
                                                             <i className="bi-chevron-left ms-1" /> Back to users
                                                         </a>
-                                                        <a className="btn btn-primary" href="/add-user">
+                                                        <a className="btn btn-primary" onClick={handleReset}>
                                                             <i className="bi-person-plus-fill me-1" /> Add new user
                                                         </a>
                                                     </div>

@@ -5,6 +5,7 @@ import { acceptInvite } from '../../Api/project';
 
 export default function Welcome() {
     const [hasAccepted, setHasAccepted] = useState(false);
+    const [message, setMessage] = useState("Something Wrong!");
 
     const location = useLocation();
 
@@ -14,14 +15,17 @@ export default function Welcome() {
 
     const accept = async () => {
         if (!hasAccepted) {
-            await acceptInvite({ token });
+            const { response } = await acceptInvite({ token });
+
+            setMessage(response.data.message);
             setHasAccepted(true);
         }
     }
 
     useEffect(() => {
+        console.log(1)
         accept();
-    }, [hasAccepted]);
+    }, []);
 
     return (
         <>
@@ -30,7 +34,7 @@ export default function Welcome() {
                     <div className="row justify-content-center align-items-center w-100">
                         <div className="col-sm-6 col-lg-4 text-center text-sm-start">
                             <h2 className="display-1 mb-0">Welcome!</h2>
-                            <p className="lead">Congratulations! You are a member of a new project.</p>
+                            <p className="lead">{message}</p>
                             <a className="btn btn-primary" href={BASE_ULR + "/projects-overview"}>Go to Project</a>
                         </div>
                     </div>

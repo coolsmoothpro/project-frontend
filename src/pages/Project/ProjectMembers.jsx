@@ -3,7 +3,7 @@ import Header from './Component/Header';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AVATAR } from '../../utils/Constant';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { setProject } from '../../Store/Reducers/ProjectSlice';
 import { getProject, deleteMember, sendInvite } from '../../Api/project';
 import { userList } from '../../Api/user';
@@ -71,7 +71,8 @@ export default function ProjectMembers() {
     }, [update]);
 
     return (
-        <>
+        <>  
+            <ToastContainer />
             <div className="content container-fluid">
                 {/* Page Header */}
                 <div className="page-header">
@@ -147,7 +148,7 @@ export default function ProjectMembers() {
                                             </div>
                                         </td>
                                         <td className="table-column-ps-0">
-                                            <a className="d-flex align-items-center" href="./user-profile.html">
+                                            <div className="d-flex align-items-center">
                                                 <div className="avatar avatar-circle">
                                                     <img className="avatar-img" src={member?.avatar || AVATAR} alt="Image Description" />
                                                 </div>
@@ -155,7 +156,7 @@ export default function ProjectMembers() {
                                                     <span className="d-block h5 text-inherit mb-0">{member?.firstname} {member?.lastname}<i className="bi-patch-check-fill text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Top endorsed" /></span>
                                                     <span className="d-block fs-5 text-body">{member?.email}</span>
                                                 </div>
-                                            </a>
+                                            </div>
                                         </td>
                                         <td>{member?.phone}</td>
                                         <td>{member?.role}</td>

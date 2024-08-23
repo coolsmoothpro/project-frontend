@@ -86,9 +86,9 @@ export default function App() {
             <Route path='/leaderboard' element={<Leaderboard />} />
             <Route path='/add-user' element={<AddUser />} />
             <Route path='/profile/:id' element={<UserProfile />} />
-            <Route path='/teams' element={<Teams />} />
-            <Route path='/projectss' element={<Projects />} />
-            <Route path='/connections' element={<Connections />} />
+            <Route path='/teams/:id' element={<Teams />} />
+            <Route path='/projectss/:id' element={<Projects />} />
+            <Route path='/connections/:id' element={<Connections />} />
             <Route path='/my-profile' element={<MyProfile />} />
             <Route path='/projects-overview' element={<ProjectsOverview />} />
             <Route path='/projects-timeline' element={<Timeline />} />

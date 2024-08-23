@@ -2,16 +2,17 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AVATAR, PROFILE_COVER_IMG } from '../../../utils/Constant';
 
-export default function Header() {
+export default function Header(props) {
     const navigate = useNavigate();
     const location = useLocation();
+    const user = props?.user;
 
     const goToPage = (page) => {
         navigate(page);
     }
 
     const getNavLinkClass = (page) => {
-        return location.pathname === page ? 'nav-link active' : 'nav-link';
+        return location.pathname.includes(page) ? 'nav-link active' : 'nav-link';
     }
 
     return (
@@ -27,26 +28,26 @@ export default function Header() {
             <div className="text-center mb-5">
                 {/* Avatar */}
                 <div className="avatar avatar-xxl avatar-circle profile-cover-avatar">
-                    <img className="avatar-img" src={AVATAR} alt="Image Description" />
+                    <img className="avatar-img" src={ user?.avatar || AVATAR} alt="Image Description" />
                     <span className="avatar-status avatar-status-success" />
                 </div>
                 {/* End Avatar */}
-                <h1 className="page-header-title">Ella Lauda <i className="bi-patch-check-fill fs-2 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Top endorsed" /></h1>
+                <h1 className="page-header-title">{user?.firstname} {user?.lastname}<i className="bi-patch-check-fill fs-2 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Top endorsed" /></h1>
                 {/* List */}
                 <ul className="list-inline list-px-2">
                     <li className="list-inline-item">
                         <i className="bi-building me-1" />
-                        <span>Htmlstream</span>
+                        <span>{user?.organization}</span>
                     </li>
                     <li className="list-inline-item">
                         <i className="bi-geo-alt me-1" />
-                        <a href="#">San Francisco,</a>
-                        <a href="#">US</a>
+                        <a href="#">{user?.location?.city}</a>
+                        <a href="#">{user?.location?.country}</a>
                     </li>
-                    <li className="list-inline-item">
+                    {/* <li className="list-inline-item">
                         <i className="bi-calendar-week me-1" />
                         <span>Joined March 2017</span>
-                    </li>
+                    </li> */}
                 </ul>
                 {/* End List */}
             </div>
@@ -65,16 +66,16 @@ export default function Header() {
                 </span>
                 <ul className="nav nav-tabs align-items-center">
                     <li className="nav-item pointer">
-                        <a className={getNavLinkClass('/profile')} onClick={() => { goToPage('/profile') }}>Profile</a>
+                        <a className={getNavLinkClass('/profile')} onClick={() => { goToPage(`/profile/${user?._id}`) }}>Profile</a>
                     </li>
                     <li className="nav-item pointer">
-                        <a className={getNavLinkClass('/teams')} onClick={() => { goToPage('/teams') }}>Teams</a>
+                        <a className={getNavLinkClass('/teams')} onClick={() => { goToPage(`/teams/${user?._id}`) }}>Teams</a>
                     </li>
                     <li className="nav-item pointer">
-                        <a className={getNavLinkClass('/projectss')} onClick={() => { goToPage('/projectss') }}>Projects <span className="badge bg-soft-dark text-dark rounded-circle ms-1">3</span></a>
+                        <a className={getNavLinkClass('/projectss')} onClick={() => { goToPage(`/projectss/${user?._id}`) }}>Projects <span className="badge bg-soft-dark text-dark rounded-circle ms-1">3</span></a>
                     </li>
                     <li className="nav-item pointer">
-                        <a className={getNavLinkClass('/connections')} onClick={() => { goToPage('/connections') }}>Connections</a>
+                        <a className={getNavLinkClass('/connections')} onClick={() => { goToPage(`/connections/${user?._id}`) }}>Connections</a>
                     </li>
                     <li className="nav-item ms-auto">
                         <div className="d-flex gap-2">
