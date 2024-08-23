@@ -1,0 +1,39 @@
+.main-grid {
+    display: flex;
+    align-items: start;
+}
+
+.navbar-verticle-width16 {
+    width: 16.25rem;
+}
+
+.navbar-verticle-width6 {
+    width: 6.25rem;
+}
+
+.main {
+    padding-top: 3.875rem;
+}
+
+.footer {
+    padding-top: 1rem;
+}
+
+.navbar-aside-toggler {
+    opacity: 1;
+}
+
+.navbar.navbar-container .navbar-nav-wrap-content-start {
+    padding-left: 10%;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+@media (max-width:1200px) {
+    .hide-nav-mobile {
+        position: fixed;
+        margin-left: -18rem;
+    }
+}
