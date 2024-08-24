@@ -66,6 +66,18 @@ export default function Sidebar() {
             : 'nav-collapse collapse';
     };
 
+    const getClassLinkForSettings = () => {
+        return ['/settings-overview', '/settings-account', '/settings-notification', '/settings-email'].includes(location.pathname)
+            ? 'nav-link dropdown-toggle active'
+            : 'nav-link dropdown-toggle';
+    };
+
+    const getCollapseClassForSettings = () => {
+        return ['/settings-overview', '/settings-account', '/settings-notification', '/settings-email'].some(page => location.pathname.includes(page))
+            ? 'nav-collapse collapse show'
+            : 'nav-collapse collapse';
+    };
+
     const getClassLinkForProjects = () => {
         return ['/projects-overview', '/projects-timeline', '/projects-kanban'].includes(location.pathname)
             ? 'nav-link dropdown-toggle active'
@@ -169,7 +181,7 @@ export default function Sidebar() {
                                 </div> */}
                                 {/* End Collapse */}
                                 {/* Collapse */}
-                                <div className="nav-item">
+                                {/* <div className="nav-item">
                                     <a className={getClassLinkForAccounts()} onClick={() => goToPage('/account-settings')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesAccountMenu" aria-expanded={isAriaExpanded(['/account-settings', '/account-billing', '/account-invoice'])} aria-controls="navbarVerticalMenuPagesAccountMenu">
                                         <i className="bi-person-badge nav-icon" />
                                         <span className="nav-link-title">Account</span>
@@ -178,6 +190,18 @@ export default function Sidebar() {
                                         <a className={getNavLinkClass('/account-settings')} onClick={() => goToPage('/account-settings')}>Settings</a>
                                         <a className={getNavLinkClass('/account-billing')} onClick={() => goToPage('/account-billing')} >Billing</a>
                                         <a className={getNavLinkClass('/account-invoice')} onClick={() => goToPage('/account-invoice')} >Invoice</a>
+                                    </div>
+                                </div> */}
+                                <div className="nav-item">
+                                    <a className={getClassLinkForSettings()} onClick={() => goToPage('/settings-overview')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesAccountMenu" aria-expanded={isAriaExpanded(['/account-settings', '/account-billing', '/account-invoice'])} aria-controls="navbarVerticalMenuPagesAccountMenu">
+                                        <i className="bi-person-badge nav-icon" />
+                                        <span className="nav-link-title">Settings</span>
+                                    </a>
+                                    <div id="navbarVerticalMenuPagesAccountMenu" className={getCollapseClassForSettings()} data-bs-parent="#navbarVerticalMenuPagesMenu">
+                                        <a className={getNavLinkClass('/settings-overview')} onClick={() => goToPage('/settings-overview')}>Overview</a>
+                                        <a className={getNavLinkClass('/settings-account')} onClick={() => goToPage('/settings-account')} >Account</a>
+                                        <a className={getNavLinkClass('/settings-notification')} onClick={() => goToPage('/settings-notification')} >Notification</a>
+                                        <a className={getNavLinkClass('/settings-email')} onClick={() => goToPage('/settings-email')} >Email</a>
                                     </div>
                                 </div>
                                 {/* End Collapse */}

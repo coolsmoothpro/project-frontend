@@ -5,6 +5,7 @@ import Header from './Component/Header';
 import { useSelector } from 'react-redux';
 import { updateTaskStatus, taskList } from "../../Api/project";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { PROJECT_LOGO } from "../../utils/Constant";
 
 
 export default function ProjectKanban() {
@@ -147,22 +148,9 @@ export default function ProjectKanban() {
                                     <li className="breadcrumb-item active" aria-current="page">Kanban</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Kanban</h1>
                         </div>
                     </div>
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                     {/* End Nav */}
                 </div>
                 <div className="tab-content" id="connectionsTabContent">

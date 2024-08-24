@@ -56,6 +56,7 @@ import ProjectsKanban from './pages/projects/ProjectsKanban'
 import Welcome from './pages/Welcome'
 import ResetPasswordForm from './pages/Authentication/ResetPasswordForm'
 import ProjectMembers from './pages/Project/ProjectMembers';
+import Email from './pages/Settings/Email';
 
 export default function App() {
   const token = localStorage.getItem("token");
@@ -103,6 +104,7 @@ export default function App() {
             <Route path='/account-settings' element={<Settings />} />
             <Route path='/account-billing' element={<Billing />} />
             <Route path='/account-invoice' element={<Invoice />} />
+            <Route path='/settings-email' element={<Email />} />
             <Route path='/ecommerce' element={<EcomOverview />} />
             <Route path='/ecommerce-products' element={<EcommerceProducts />} />
             <Route path='/ecommerce-products-details' element={<EcommerceProductsDetails />} />

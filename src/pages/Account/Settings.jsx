@@ -708,14 +708,14 @@ export default function Settings() {
                                     {/* Form */}
                                     <form id="changePasswordForm">
                                         {/* Form */}
-                                        <div className="row mb-4">
+                                        {/* <div className="row mb-4">
                                             <label htmlFor="currentPasswordLabel" className="col-sm-3 col-form-label form-label">Current password</label>
                                             <div className="col-sm-9">
                                                 <input type="password" className="form-control" name="currentPassword" id="currentPasswordLabel" placeholder="Enter current password" aria-label="Enter current password" />
                                             </div>
-                                        </div>
+                                        </div> */}
                                         {/* End Form */}
-                                        {/* Form */}
+                                        {/* Form */}                                        
                                         <div className="row mb-4">
                                             <label htmlFor="newPassword" className="col-sm-3 col-form-label form-label">New password</label>
                                             <div className="col-sm-9">

@@ -20,9 +20,9 @@ const steps = ['Details', 'Member'];
 export default function ProjectOverview() {
     const location = useLocation();
     const projectId = location.pathname.split('/').pop();
-
+    const project = useSelector((state) => state.project);
     const navigate = useNavigate();
-    const [project, setProject] = useState({});
+    // const [project, setProject] = useState(useSelector((state) => state.project));
     const [activeStep, setActiveStep] = React.useState(0);
     const [completed, setCompleted] = React.useState({});    
     const [tasks, setTasks] = useState(project?.tasks || []);
@@ -71,7 +71,6 @@ export default function ProjectOverview() {
     
     const handleMember = (e) => {
         setMember(e.target.value);
-        console.log(e.target.value);
     }
 
     const handleComplete = async () => {
@@ -85,10 +84,10 @@ export default function ProjectOverview() {
 
             if (response.data.success) {
                 setUpdate(!update);
+                toast.success(response.data.message);                
                 handleReset();
-                toast.success(response.data.messsage);
             } else {
-                toast.error(response.data.messsage);
+                toast.error(response.data.message);
             }
         }
 
@@ -115,14 +114,14 @@ export default function ProjectOverview() {
         }
     }
 
-    const getProjectById = async () => {
-        const id = projectId;
-        const { response } = await getProject({id});
+    // const getProjectById = async () => {
+    //     const id = projectId;
+    //     const { response } = await getProject({id});
 
-        if (response.data.success) {
-            setProject(response.data.project);
-        }
-    }
+    //     if (response.data.success) {
+    //         setProject(response.data.project);
+    //     }
+    // }
 
     const handleDelete = async () => {
         const { response } = await deleteTask({projectId, deleteTaskName});
@@ -154,7 +153,7 @@ export default function ProjectOverview() {
     }
 
     useEffect(() => {
-        getProjectById();
+        // getProjectById();
         tasksByProjectId();
     }, [update]);
 
@@ -175,73 +174,7 @@ export default function ProjectOverview() {
                             </nav>
                         </div>
                     </div>
-                    <div className="d-flex mb-3">
-                        <div class="flex-shrink-0">
-                            <div class="avatar avatar-lg avatar-4x3">
-                                <img class="avatar-img" src={project?.projectLogo || PROJECT_LOGO} alt="Image Description" />
-                            </div>
-                        </div>
-                        <div className="flex-grow-1 ms-4">
-                            <div className="row">
-                                <div className="col-lg mb-3 mb-lg-0">
-                                    <h1 className="page-header-title">{project?.projectName}</h1>
-                                    <div className="row align-items-center">
-                                        <div className="col-auto">
-                                            <span>Client:</span>
-                                            <a href="#">{project?.client}</a>
-                                        </div>
-                                        <div className="col-auto">
-                                            <div className="row align-items-center g-0">
-                                                <div className="col-auto">Due date:</div>
-                                                <div className="col flatpickr-custom-position-fix-sm-down">
-                                                    <div id="projectDeadlineFlatpickr" className="js-flatpickr flatpickr-custom flatpickr-custom-borderless input-group input-group-sm">
-                                                        <input defaultValue={project?.dueDate} type="text" className="flatpickr-custom-form-control form-control" placeholder="Select dates" data-input />
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-sm-auto">
-                                    <span className="text-cap small">Team members:</span>
-                                    <div className="d-flex">
-                                        <div className="avatar-group avatar-circle me-3">
-                                            {project?.members?.map((user) => (
-                                                user?.avatar ?
-                                                (<span className="avatar avatar-circle">
-                                                    <img className="avatar-img" src={user?.avatar} alt="Image Description" />
-                                                </span>)
-                                                : (
-                                                    <span className="avatar avatar-soft-dark avatar-circle">
-                                                        <span className="avatar-initials">{user?.firstname?.charAt(0)}.</span>
-                                                    </span>
-                                                )
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-sm-auto">
-                                    <a onClick={handleReset} className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
-                                        <i className="bi-plus me-1" /> Add task
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                 </div>
                 <div className="card mb-3 mb-lg-5">
                     <div className="card-body">

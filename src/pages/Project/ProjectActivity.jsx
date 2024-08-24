@@ -2,6 +2,7 @@ import React from 'react'
 import Header from './Component/Header'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { PROJECT_LOGO } from '../../utils/Constant';
 
 export default function ProjectActivity() {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function ProjectActivity() {
                 {/* Page Header */}
                 <div className="page-header">
                     <div className="row align-items-end mb-3">
-                        <div className="col-sm">
+                        <div className="col-sm mb-2 mb-sm-0">
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
@@ -24,26 +25,9 @@ export default function ProjectActivity() {
                                     <li className="breadcrumb-item active" aria-current="page">Activity</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Activity</h1>
-                        </div>
-                        {/* End Col */}
+                        </div>                        
                     </div>
-                    {/* End Row */}
-                    {/* Nav */}
-                    {/* Nav */}
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                     {/* End Nav */}
                 </div>
                 {/* End Page Header */}

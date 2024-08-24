@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Component/Header';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AVATAR } from '../../utils/Constant';
+import { AVATAR, PROJECT_LOGO } from '../../utils/Constant';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import { setProject } from '../../Store/Reducers/ProjectSlice';
@@ -20,12 +20,12 @@ export default function ProjectMembers() {
     const [users, setUsers] = useState([]);
     const [email, setEmail] = useState("");
 
-    const getProjectById = async () => {
-        const id = projectId;
-        const { response } = await getProject({id});
+    // const getProjectById = async () => {
+    //     const id = projectId;
+    //     const { response } = await getProject({id});
 
-        dispatch(setProject(response.data.project));
-    }
+    //     dispatch(setProject(response.data.project));
+    // }
 
     const getUsers = async () => {
         const { response } = await userList();
@@ -66,7 +66,7 @@ export default function ProjectMembers() {
     }
 
     useEffect(() => {
-        getProjectById();
+        // getProjectById();
         getUsers();
     }, [update]);
 
@@ -77,7 +77,7 @@ export default function ProjectMembers() {
                 {/* Page Header */}
                 <div className="page-header">
                     <div className="row align-items-end mb-3">
-                        <div className="col-sm">
+                        <div className="col-sm mb-2 mb-sm-0">
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
@@ -86,27 +86,9 @@ export default function ProjectMembers() {
                                     <li className="breadcrumb-item active" aria-current="page">Activity</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Members</h1>
-                        </div>
-                        <div className="col-sm-auto">
-                            <a className="btn btn-primary" href="javascript:;" data-bs-toggle="modal" data-bs-target="#newProjectModal">
-                                <i className="bi-plus me-1" /> Add Member
-                            </a>
-                        </div>
+                        </div>                        
                     </div>
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                 </div>
                 <div className="row justify-content-lg-center">
                 <div className="card">
@@ -206,11 +188,11 @@ export default function ProjectMembers() {
                 </div>
                 </div>
             </div>
-            <div className="modal fade" id="newProjectModal" tabIndex={-1} aria-labelledby="newProjectModalLabel" aria-hidden="true">
+            <div className="modal fade" id="newMemberModal" tabIndex={-1} aria-labelledby="newMemberModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-dialog-centered modal-lg">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title" id="newProjectModalLabel">New Member</h5>
+                            <h5 className="modal-title" id="newMemberModalLabel">New Member</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close" />
                         </div>
                         <div className="modal-body">

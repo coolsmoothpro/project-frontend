@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from './Component/Header'
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from 'react-redux';
+import { userList } from '../../Api/user'; 
+import { createTeam, teamList, deleteTeam } from '../../Api/team';
 
 export default function ProjectTeams() {
     const navigate = useNavigate();
@@ -11,10 +14,72 @@ export default function ProjectTeams() {
 
     const [teamName, setTeamName] = useState("");
     const [teamDescription, setTeamDescription] = useState("");
+    const [member, setMember] = useState("");
+    const [users, setUsers] = useState([]);
+    const [update, setUpdate] = useState(false);
+    const [teams, setTeams] = useState([]);
+    const [teamId, setTeamId] = useState("");
+    
+    const getUsers = async () => {
+        const { response } = await userList();
+
+        if (response.data.success) {
+            setUsers(response.data.users);
+        } else {
+            toast.error("Users Fetch Failed!");
+        }
+    }
+    
+    const handleMember = (e) => {
+        setMember(e.target.value);
+    }
+
+    const handleSave = async () => {
+        const { response } = await createTeam({ teamName, teamDescription, member });
+
+        if (response.data.success) {
+            setUpdate(!update);
+            toast.success(response.data.message);            
+            handleReset();
+        } else {
+            toast.error(response.data.message);
+        }
+    }
+
+    const getTeams = async () => {
+        const { response } = await teamList();
+
+        if (response.data.success) {
+            setTeams(response.data.teams);
+            setUpdate(!update);
+        }
+    }
+
+    const handleReset = () => {
+        setTeamName("");
+        setTeamDescription("");
+        setMember("");
+    }
+
+    const handleDelete = async () => {
+        const { response } = await deleteTeam({teamId});
+
+        if (response.data.success) {
+            navigate(0);
+            toast.success(response.data.message);
+        } else {
+            toast.success(response.data.message);
+        }
+    }
+
+    useEffect(() => {
+        getUsers();
+        getTeams();
+    }, [update]);
 
     return (
         <>
-            {/* End Welcome Message Modal */}
+            <ToastContainer />
             <div className="content container-fluid">
                 {/* Page Header */}
                 <div className="page-header">
@@ -28,33 +93,9 @@ export default function ProjectTeams() {
                                     <li className="breadcrumb-item active" aria-current="page">Teams</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Teams</h1>
                         </div>
-                        {/* End Col */}
-                        <div className="col-sm-auto">
-                            <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shareWithPeopleModal">
-                                <i className="bi-plus me-1" /> Add team
-                            </button>
-                        </div>
-                        {/* End Col */}
                     </div>
-                    {/* End Row */}
-                    {/* Nav */}
-                    {/* Nav */}
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
-                    {/* End Nav */}
+                    <Header />
                 </div>
                 {/* End Page Header */}
                 {/* Card */}
@@ -254,60 +295,48 @@ export default function ProjectTeams() {
                                     </th>
                                     <th scope="col" className="table-column-ps-0">Team</th>
                                     <th scope="col" style={{ minWidth: '20rem' }}>Description</th>
-                                    <th scope="col">Industry</th>
                                     <th scope="col">Members</th>
                                     <th scope="col" />
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td className="table-column-pe-0">
-                                        <div className="form-check">
-                                            <input className="form-check-input" type="checkbox" defaultValue id="teamDataCheck1" />
-                                            <label className="form-check-label" htmlFor="teamDataCheck1" />
-                                        </div>
-                                    </td>
-                                    <td className="table-column-ps-0"><a href="#">#digitalmarketing</a></td>
-                                    <td>Our group promotes and sells products and services by leveraging online marketing tactics</td>
-                                    <td><a className="badge bg-soft-primary text-primary p-2" href="#">Marketing team</a></td>
-                                    <td>
-                                        <div className="avatar-group avatar-group-xs avatar-circle">
-                                            <span className="avatar" data-bs-toggle="tooltip" data-bs-placement="top" title="Ella Lauda">
-                                                <img className="avatar-img" src="http://localhost:3000/assets/img/160x160/img9.jpg" alt="Image Description" />
-                                            </span>
-                                            <span className="avatar" data-bs-toggle="tooltip" data-bs-placement="top" title="David Harrison">
-                                                <img className="avatar-img" src="http://localhost:3000/assets/img/160x160/img3.jpg" alt="Image Description" />
-                                            </span>
-                                            <span className="avatar avatar-soft-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Antony Taylor">
-                                                <span className="avatar-initials">A</span>
-                                            </span>
-                                            <span className="avatar avatar-soft-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Sara Iwens">
-                                                <span className="avatar-initials">S</span>
-                                            </span>
-                                            <span className="avatar" data-bs-toggle="tooltip" data-bs-placement="top" title="Finch Hoot">
-                                                <img className="avatar-img" src="http://localhost:3000/assets/img/160x160/img5.jpg" alt="Image Description" />
-                                            </span>
-                                            <span className="avatar avatar-light avatar-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="Sam Kart, Amanda Harvey and 1 more">
-                                                <span className="avatar-initials">+3</span>
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className="dropdown">
-                                            <button type="button" className="btn btn-white btn-sm" id="teamsDropdown1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                More <i className="bi-chevron-down ms-1" />
-                                            </button>
-                                            <div className="dropdown-menu dropdown-menu-sm dropdown-menu-end" aria-labelledby="teamsDropdown1">
-                                                <a className="dropdown-item" href="#">Rename team</a>
-                                                <a className="dropdown-item" href="#">Add to favorites</a>
-                                                <a className="dropdown-item" href="#">Archive team</a>
-                                                <div className="dropdown-divider" />
-                                                <a className="dropdown-item text-danger" href="#">Delete</a>
+                                {teams?.map((team, index) => (                                    
+                                    <tr key={index}>
+                                        <td className="table-column-pe-0">
+                                            <div className="form-check">
+                                                <input className="form-check-input" type="checkbox" defaultValue id="teamDataCheck1" />
+                                                <label className="form-check-label" htmlFor="teamDataCheck1" />
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                
+                                        </td>
+                                        <td className="table-column-ps-0">{team?.teamName}</td>
+                                        <td><span className="badge bg-soft-primary text-primary p-2">{team?.teamDescription}</span></td>
+                                        <td>
+                                            {
+                                                team?.members?.length ?
+                                                    <div className="avatar-group avatar-group-xs avatar-circle">
+                                                        {team?.members?.map((user) => (
+                                                            user?.avatar ?
+                                                            (<span className="avatar avatar-circle">
+                                                                <img className="avatar-img" src={user?.avatar} alt="Image Description" />
+                                                            </span>)
+                                                            : (
+                                                                <span className="avatar avatar-soft-dark avatar-circle">
+                                                                    <span className="avatar-initials">{user?.firstname?.charAt(0)}.</span>
+                                                                </span>
+                                                            )
+                                                        ))}
+                                                    </div>
+                                                : "No Assignee"
+                                            }
+                                        </td>
+                                        <td>
+                                            <button onClick={() => setTeamId(team?._id)} type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteTeamModal">
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -376,6 +405,35 @@ export default function ProjectTeams() {
                                     <textarea value={teamDescription} onChange={(e) => setTeamDescription(e.target.value)} rows={5} className="input-group input-group-merge p-2" />
                                 </div>
                             </div>
+                            <div class="tom-select-custom tom-select-custom-with-tags">
+                                <select onChange={handleMember} class="js-select form-select" >
+                                    <option value="">--Select User--</option>
+                                    {users?.map((user) => (
+                                        <option  value={JSON.stringify(user)}>{user?.firstname} {user?.lastname}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancle</button>
+                            <button onClick={() => handleSave()} type="button" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+            <div class="modal fade" id="deleteTeamModal" tabindex="-1" role="dialog" aria-labelledby="deleteTeamModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteTeamModalLabel">Delete Team</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-white" data-bs-dismiss="modal">Cancle</button>
+                            <button onClick={() => handleDelete()} type="button" class="btn btn-danger">Delete</button>
                         </div>
                     </div>
                 </div>

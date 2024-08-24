@@ -59,24 +59,33 @@ export default function ProjectSetting() {
         }
     }
 
-    const getProjectById = async () => {
-        const id = projectId;
-        const { response } = await getProject({id});
+    // const getProjectById = async () => {
+    //     const id = projectId;
+    //     const { response } = await getProject({id});
 
-        if (response.data.success) {
-            const project = response.data.project;
+    //     if (response.data.success) {
+    //         const project = response.data.project;
 
-            setProjectLogo(project?.projectLogo);
-            setProjectName(project?.projectName);
-            setProjectDescription(project?.projectDescription);
-            setTerms(project?.terms);
-            setExpectedValue(project?.expectedValue);
-            setMilestone(project?.milestone);
-        }
+    //         setProjectLogo(project?.projectLogo);
+    //         setProjectName(project?.projectName);
+    //         setProjectDescription(project?.projectDescription);
+    //         setTerms(project?.terms);
+    //         setExpectedValue(project?.expectedValue);
+    //         setMilestone(project?.milestone);
+    //     }
+    // }
+
+    const setProject = () => {
+        setProjectLogo(project?.projectLogo);
+        setProjectName(project?.projectName);
+        setProjectDescription(project?.projectDescription);
+        setTerms(project?.terms);
+        setExpectedValue(project?.expectedValue);
+        setMilestone(project?.milestone);
     }
 
     useEffect(() => {
-        getProjectById();
+        setProject();
 
     }, [project]);
 
@@ -87,7 +96,7 @@ export default function ProjectSetting() {
                 {/* Page Header */}
                 <div className="page-header">
                     <div className="row align-items-end mb-3">
-                        <div className="col-sm">
+                        <div className="col-sm mb-2 mb-sm-0">
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
@@ -96,26 +105,9 @@ export default function ProjectSetting() {
                                     <li className="breadcrumb-item active" aria-current="page">Settings</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Settings</h1>
                         </div>
-                        {/* End Col */}
                     </div>
-                    {/* End Row */}
-                    {/* Nav */}
-                    {/* Nav */}
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                     {/* End Nav */}
                 </div>
                 {/* End Page Header */}

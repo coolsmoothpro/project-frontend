@@ -3,8 +3,8 @@ import Header from './Component/Header';
 import { useSelector } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DOCS_URL, PDF_URL, GOOGLE_SLIDES_URL, GOOGLE_SHEETS_URL, IMG_URL, OC_BROWSE, LIGHT_OC_BROWSE, DOWNLOAD_ULR } from '../../utils/Constant';
-import { toast } from 'react-toastify';
+import { DOCS_URL, PDF_URL, GOOGLE_SLIDES_URL, GOOGLE_SHEETS_URL, IMG_URL, OC_BROWSE, LIGHT_OC_BROWSE, DOWNLOAD_ULR, PROJECT_LOGO } from '../../utils/Constant';
+import { toast, ToastContainer } from 'react-toastify';
 import { uploadProjectFile, getProject, deleteFile, download } from '../../Api/project'; 
 import { useDispatch } from 'react-redux';
 import { setProject } from '../../Store/Reducers/ProjectSlice'; 
@@ -48,7 +48,7 @@ export default function ProjectFiles() {
 
         if (response.data.success) {
             setUpdate(!update);
-            toast.success("Project has been created successfully!");
+            toast.success("File uploaded successfully!");
         } else {
             toast.error("Failed!");
             return;
@@ -100,7 +100,8 @@ export default function ProjectFiles() {
     }, [update]);
 
     return (
-        <>
+        <> 
+            <ToastContainer />
             <div className="content container-fluid">
                 {/* Page Header */}
                 <div className="page-header">
@@ -114,54 +115,9 @@ export default function ProjectFiles() {
                                     <li className="breadcrumb-item active" aria-current="page">Files</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Files</h1>
                         </div>
-                        {/* End Col */}
-                        <div className="col-sm-auto" aria-label="Button group">
-                            {/* Button Group */}
-                            <div className="btn-group" role="group">
-                                <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFilesModal">
-                                    <i className="bi-cloud-arrow-up-fill me-1" /> Upload
-                                </button>
-                                <div className="btn-group">
-                                    <button type="button" className="btn btn-primary dropdown-toggle" id="uploadGroupDropdown" data-bs-toggle="dropdown" aria-expanded="false" />
-                                    <div className="dropdown-menu dropdown-menu-end" aria-labelledby="uploadGroupDropdown">
-                                        <a className="dropdown-item" href="#">
-                                            <i className="bi-folder-plus dropdown-item-icon" /> New folder
-                                        </a>
-                                        <a className="dropdown-item" href="#">
-                                            <i className="bi-folder-symlink dropdown-item-icon" /> New shared folder
-                                        </a>
-                                        <div className="dropdown-divider" />
-                                        <a className="dropdown-item" href="javascript:;" data-bs-toggle="modal" data-bs-target="#uploadFilesModal">
-                                            <i className="bi-file-earmark-arrow-up dropdown-item-icon" /> Upload files
-                                        </a>
-                                        <a className="dropdown-item" href="javascript:;" data-bs-toggle="modal" data-bs-target="#uploadFilesModal">
-                                            <i className="bi-upload dropdown-item-icon" /> Upload folder
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* End Button Group */}
-                        </div>
-                        {/* End Col */}
                     </div>
-                    {/* End Row */}
-                    {/* Nav */}
-                    {/* Nav */}
-                    <div className="js-nav-scroller hs-nav-scroller-horizontal">
-                        <span className="hs-nav-scroller-arrow-prev" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-left" />
-                            </a>
-                        </span>
-                        <span className="hs-nav-scroller-arrow-next" style={{ display: 'none' }}>
-                            <a className="hs-nav-scroller-arrow-link" href="javascript:;">
-                                <i className="bi-chevron-right" />
-                            </a>
-                        </span>
-                        <Header />
-                    </div>
+                    <Header />
                     {/* End Nav */}
                 </div>
                 {/* End Page Header */}
@@ -189,26 +145,26 @@ export default function ProjectFiles() {
                                         </button>
                                         <div className="dropdown-menu dropdown-menu-end" aria-labelledby="filesListDropdown1" style={{ minWidth: '13rem' }}>
                                             <span className="dropdown-header">Settings</span>
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" href="javascript:;">
                                                 <i className="bi-share dropdown-item-icon" /> Share file
                                             </a>
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" href="javascript:;">
                                                 <i className="bi-folder-plus dropdown-item-icon" /> Move to
                                             </a>
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" href="javascript:;">
                                                 <i className="bi-star dropdown-item-icon" /> Add to stared
                                             </a>
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" href="javascript:;">
                                                 <i className="bi-pencil dropdown-item-icon" /> Rename
                                             </a>
-                                            <a className="dropdown-item" onClick={() => downloadFile(`${DOWNLOAD_ULR}/${file?.path}`, file?.originalname)}>
+                                            <a className="dropdown-item" href="javascript:;" onClick={() => downloadFile(`${DOWNLOAD_ULR}/${file?.path}`, file?.originalname)}>
                                                 <i className="bi-download dropdown-item-icon" /> Download
                                             </a>
                                             <div className="dropdown-divider" />
-                                            <a className="dropdown-item" href="#">
+                                            <a className="dropdown-item" href="javascript:;">
                                                 <i className="bi-chat-left-dots dropdown-item-icon" /> Report
                                             </a>
-                                            <a className="dropdown-item" onClick={() => handleDelete(file.filename)}>
+                                            <a className="dropdown-item" href="javascript:;" onClick={() => handleDelete(file.filename)}>
                                                 <i className="bi-trash dropdown-item-icon" /> Delete
                                             </a>
                                         </div>
