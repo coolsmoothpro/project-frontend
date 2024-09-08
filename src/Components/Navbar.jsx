@@ -3,11 +3,12 @@ import { useDispatch } from 'react-redux';
 import { removeUser } from '../Store/Reducers/UserSlice';
 import { removeToken } from '../utils';
 import { useNavigate } from 'react-router-dom';
-import { AVATAR } from '../utils/Constant';
+import { AVATAR, HOST_ULR, LOGO } from '../utils/Constant';
 import { setStatus, currentUser } from '../Api/auth';
 
 export default function Navbar() {    
     const loggedUser = JSON.parse(localStorage.getItem('user')) || null;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function Navbar() {
     const getCurrentUser = async () => {
         const id = loggedUser._id;
         if (id) {
-            const { response } = await currentUser({id});
+            const { response } = await currentUser({clientId, id});
 
             if (response.data.success) {
                 setUser(response.data.user);
@@ -40,7 +41,7 @@ export default function Navbar() {
     const handleSetStatus = async (status) => {
         const id = user?._id;
 
-        const { response } = await setStatus({ id, status });
+        const { response } = await setStatus({ clientId, id, status });
 
         if (response.data.success) {
             getCurrentUser();
@@ -55,8 +56,8 @@ export default function Navbar() {
         <header id="header" className="navbar navbar-expand-lg navbar-fixed navbar-height navbar-container navbar-bordered bg-white">
             <div className="navbar-nav-wrap">
                 {/* Logo */}
-                <a className="navbar-brand" href="./index.html" aria-label="Front">
-                    <img className="navbar-brand-logo" src="./assets/svg/logos/logo.svg" alt="Logo" data-hs-theme-appearance="default" />
+                <a className="navbar-brand" href="javascript:;" onClick={()=>goToPage("/")} aria-label="Front">
+                    <img className="navbar-brand-logo" src={LOGO} alt="Logo" data-hs-theme-appearance="default" />
                     {/* <img className="navbar-brand-logo" src="./assets/svg/logos-light/logo.svg" alt="Logo" data-hs-theme-appearance="dark" />
                     <img className="navbar-brand-logo-mini" src="./assets/svg/logos/logo-short.svg" alt="Logo" data-hs-theme-appearance="default" />
                     <img className="navbar-brand-logo-mini" src="./assets/svg/logos-light/logo-short.svg" alt="Logo" data-hs-theme-appearance="dark" /> */}
@@ -730,12 +731,12 @@ export default function Navbar() {
                                         <div className="d-flex align-items-center">
                                             <div className="flex-shrink-0">
                                                 <div className="avatar avatar-sm avatar-dark avatar-circle">
-                                                    <span className="avatar-initials">HS</span>
+                                                    <span className="avatar-initials">{user?.clientId?.toUpperCase()}</span>
                                                 </div>
                                             </div>
                                             <div className="flex-grow-1 ms-2">
-                                                <h5 className="mb-0">Htmlstream <span className="badge bg-primary rounded-pill text-uppercase ms-1">PRO</span></h5>
-                                                <span className="card-text">hs.example.com</span>
+                                                <h5 className="mb-0">{user?.organization} </h5>
+                                                <span className="card-text">{user?.clientId}.{HOST_ULR}</span>
                                             </div>
                                         </div>
                                     </a>

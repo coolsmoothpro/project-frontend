@@ -4,6 +4,7 @@ import { LOGO, SHORT_LOGO } from '../utils/Constant';
 
 export default function Sidebar() {
     const user = JSON.parse(localStorage.getItem('user'));
+    const subdomain = localStorage.getItem('subdomain');
 
     const [isExpanded, setisExpanded] = useState(true);
 
@@ -55,13 +56,13 @@ export default function Sidebar() {
     };
 
     const getClassLinkForAccounts = () => {
-        return ['/account-settings', '/account-billing', '/account-invoice'].includes(location.pathname)
+        return ['/account-settings', '/account-billing', '/account-invoice', '/account-overview', 'add-client'].includes(location.pathname)
             ? 'nav-link dropdown-toggle active'
             : 'nav-link dropdown-toggle';
     };
 
     const getCollapseClassForAccounts = () => {
-        return ['/account-settings', '/account-billing', '/account-invoice'].some(page => location.pathname.includes(page))
+        return ['/account-settings', '/account-billing', '/account-invoice', '/account-overview', 'add-client'].some(page => location.pathname.includes(page))
             ? 'nav-collapse collapse show'
             : 'nav-collapse collapse';
     };
@@ -111,7 +112,7 @@ export default function Sidebar() {
             <div className="navbar-vertical-container">
                 <div className="navbar-vertical-footer-offset">
                     {/* Logo */}
-                    <a className="navbar-brand" href="/" aria-label="Front">
+                    <a className="navbar-brand" onClick={() => goToPage('/')} aria-label="Front">
                         <img className="navbar-brand-logo" src={LOGO} alt="Logo" data-hs-theme-appearance="default" />
                         {/* <img className="navbar-brand-logo" src="./assets/svg/logos-light/logo.svg" alt="Logo" data-hs-theme-appearance="dark" /> */}
                         <img className="navbar-brand-logo-mini" src={SHORT_LOGO} alt="Logo" data-hs-theme-appearance="default" />
@@ -137,8 +138,8 @@ export default function Sidebar() {
                                     <span className="nav-link-title">Dashboards</span>
                                 </a>
                                 <div id="navbarVerticalMenuDashboards" className={getCollapseClassForUserDashboard()} data-bs-parent="#navbarVerticalMenu">
-                                    <a className="nav-link" href="./">Default</a>
-                                    <a className="nav-link" href="./dashboard-alternative.html">Alternative</a>
+                                    <a className="nav-link" onClick={() => goToPage('/')}>Default</a>
+                                    <a className="nav-link" onClick={() => goToPage('/')}>Alternative</a>
                                 </div>
                             </div>
                             {/* End Collapse */}
@@ -181,17 +182,21 @@ export default function Sidebar() {
                                 </div> */}
                                 {/* End Collapse */}
                                 {/* Collapse */}
-                                {/* <div className="nav-item">
-                                    <a className={getClassLinkForAccounts()} onClick={() => goToPage('/account-settings')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesAccountMenu" aria-expanded={isAriaExpanded(['/account-settings', '/account-billing', '/account-invoice'])} aria-controls="navbarVerticalMenuPagesAccountMenu">
+                                <div className="nav-item">
+                                    <a className={getClassLinkForAccounts()} onClick={() => goToPage('/account-overview')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesAccountMenu" aria-expanded={isAriaExpanded(['/account-settings', '/account-billing', '/account-invoice'])} aria-controls="navbarVerticalMenuPagesAccountMenu">
                                         <i className="bi-person-badge nav-icon" />
                                         <span className="nav-link-title">Account</span>
                                     </a>
                                     <div id="navbarVerticalMenuPagesAccountMenu" className={getCollapseClassForAccounts()} data-bs-parent="#navbarVerticalMenuPagesMenu">
-                                        <a className={getNavLinkClass('/account-settings')} onClick={() => goToPage('/account-settings')}>Settings</a>
+                                        {/* <a className={getNavLinkClass('/account-settings')} onClick={() => goToPage('/account-settings')}>Settings</a> */}
+                                        <a className={getNavLinkClass('/account-overview')} onClick={() => goToPage('/account-overview')}>Overview</a>
+                                        {!subdomain && (user?.role === 'ADMIN' || user?.role === 'ACCOUNT ADMIN') &&
+                                            (<a className={getNavLinkClass('/add-client')} onClick={() => goToPage('/add-client')}>Add Client</a>)
+                                        }
                                         <a className={getNavLinkClass('/account-billing')} onClick={() => goToPage('/account-billing')} >Billing</a>
                                         <a className={getNavLinkClass('/account-invoice')} onClick={() => goToPage('/account-invoice')} >Invoice</a>
                                     </div>
-                                </div> */}
+                                </div>
                                 <div className="nav-item">
                                     <a className={getClassLinkForSettings()} onClick={() => goToPage('/settings-overview')} role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesAccountMenu" aria-expanded={isAriaExpanded(['/account-settings', '/account-billing', '/account-invoice'])} aria-controls="navbarVerticalMenuPagesAccountMenu">
                                         <i className="bi-person-badge nav-icon" />
@@ -206,7 +211,7 @@ export default function Sidebar() {
                                 </div>
                                 {/* End Collapse */}
                                 {/* Collapse */}
-                                <div className="nav-item">
+                                {/* <div className="nav-item">
                                     <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuPagesEcommerceMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesEcommerceMenu" aria-expanded="false" aria-controls="navbarVerticalMenuPagesEcommerceMenu">
                                         <i className="bi-basket nav-icon" />
                                         <span className="nav-link-title">E-commerce</span>
@@ -214,7 +219,6 @@ export default function Sidebar() {
                                     <div id="navbarVerticalMenuPagesEcommerceMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuPagesMenu">
                                         <a className={getNavLinkClass('/ecommerce')} href="/ecommerce" >Overview</a>
                                         <div id="navbarVerticalMenuPagesMenuEcommerce">
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle" href="#navbarVerticalMenuPagesEcommerceProductsMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesEcommerceProductsMenu" aria-expanded="false" aria-controls="navbarVerticalMenuPagesEcommerceProductsMenu">
                                                     Products
@@ -225,8 +229,6 @@ export default function Sidebar() {
                                                     <a className={getNavLinkClass('/ecommerce-add-product')} href="/ecommerce-add-product" >Add Product</a>
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle" href="#navbarVerticalMenuPagesEcommerceOrdersMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesEcommerceOrdersMenu" aria-expanded="false" aria-controls="navbarVerticalMenuPagesEcommerceOrdersMenu">
                                                     Orders
@@ -236,8 +238,6 @@ export default function Sidebar() {
                                                     <a className={getNavLinkClass('/ecommerce-order-details')} href="/ecommerce-order-details" >Order Details</a>
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle" href="#navbarVerticalMenuPagesEcommerceCustomersMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuPagesEcommerceCustomersMenu" aria-expanded="false" aria-controls="navbarVerticalMenuPagesEcommerceCustomersMenu">
                                                     Customers
@@ -248,13 +248,12 @@ export default function Sidebar() {
                                                     <a className={getNavLinkClass('/ecommerce-add-customer')} href="/ecommerce-add-customer" >Add Customers</a>
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
                                         </div>
                                         <a className={getNavLinkClass('/ecommerce-referrals')} href="/ecommerce-referrals">Referrals</a>
                                         <a className={getNavLinkClass('/ecommerce-manage-reviews')} href="/ecommerce-manage-reviews">Manage Reviews</a>
                                         <a className={getNavLinkClass('/ecommerce-checkout')} href="/ecommerce-checkout">Checkout</a>
                                     </div>
-                                </div>
+                                </div> */}
                                 {/* End Collapse */}
                                 {/* Collapse */}
                                 <div className="nav-item">
@@ -284,76 +283,60 @@ export default function Sidebar() {
                                 </div> */}
                                 {/* End Collapse */}
                                 {/* Collapse */}
-                                <div className="nav-item">
+                                {/* <div className="nav-item">
                                     <a className="nav-link dropdown-toggle  collapsed" href="#" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthentication" aria-expanded="false" aria-controls="navbarVerticalMenuAuthentication">
                                         <i className="bi-shield-lock nav-icon" />
                                         <span className="nav-link-title">Authentication</span>
                                     </a>
                                     <div id="navbarVerticalMenuAuthentication" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenu">
                                         <div id="navbarVerticalMenuAuthenticationMenu">
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuAuthenticationLoginMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthenticationLoginMenu" aria-expanded="false" aria-controls="navbarVerticalMenuAuthenticationLoginMenu">
                                                     Log In
                                                 </a>
                                                 <div id="navbarVerticalMenuAuthenticationLoginMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuAuthenticationMenu">
                                                     <a className={getNavLinkClass('/login')} href="/login">Basic</a>
-                                                    {/* <a className="nav-link " href="./authentication-login-cover.html">Cover</a> */}
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuAuthenticationSignupMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthenticationSignupMenu" aria-expanded="false" aria-controls="navbarVerticalMenuAuthenticationSignupMenu">
                                                     Sign Up
                                                 </a>
                                                 <div id="navbarVerticalMenuAuthenticationSignupMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuAuthenticationMenu">
                                                     <a className={getNavLinkClass('/sign-up')} href="/sign-up">Basic</a>
-                                                    {/* <a className="nav-link " href="./authentication-signup-cover.html">Cover</a> */}
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuAuthenticationResetPasswordMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthenticationResetPasswordMenu" aria-expanded="false" aria-controls="navbarVerticalMenuAuthenticationResetPasswordMenu">
                                                     Reset Password
                                                 </a>
                                                 <div id="navbarVerticalMenuAuthenticationResetPasswordMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuAuthenticationMenu">
                                                     <a className={getNavLinkClass('/reset-password')} href="/reset-password">Basic</a>
-                                                    {/* <a className="nav-link " href="./authentication-reset-password-cover.html">Cover</a> */}
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuAuthenticationEmailVerificationMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthenticationEmailVerificationMenu" aria-expanded="false" aria-controls="navbarVerticalMenuAuthenticationEmailVerificationMenu">
                                                     Email Verification
                                                 </a>
                                                 <div id="navbarVerticalMenuAuthenticationEmailVerificationMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuAuthenticationMenu">
                                                     <a className={getNavLinkClass('/email-verification')} href="/email-verification">Basic</a>
-                                                    {/* <a className="nav-link " href="./authentication-email-verification-cover.html">Cover</a> */}
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* Collapse */}
                                             <div className="nav-item">
                                                 <a className="nav-link dropdown-toggle " href="#navbarVerticalMenuAuthentication2StepVerificationMenu" role="button" data-bs-toggle="collapse" data-bs-target="#navbarVerticalMenuAuthentication2StepVerificationMenu" aria-expanded="false" aria-controls="navbarVerticalMenuAuthentication2StepVerificationMenu">
                                                     2-step Verification
                                                 </a>
                                                 <div id="navbarVerticalMenuAuthentication2StepVerificationMenu" className="nav-collapse collapse " data-bs-parent="#navbarVerticalMenuAuthenticationMenu">
                                                     <a className={getNavLinkClass('/two-step-verification')} href="/two-step-verification" >Basic</a>
-                                                    {/* <a className="nav-link " href="./authentication-2-step-verification-cover.html">Cover</a> */}
                                                 </div>
                                             </div>
-                                            {/* End Collapse */}
-                                            {/* <a className="nav-link" href="javascript:;" data-bs-toggle="modal" data-bs-target="#welcomeMessageModal">Welcome Message</a> */}
                                             <a className={getNavLinkClass('/error-404')} href="/error-404">Error 404</a>
                                             <a className={getNavLinkClass('/error-500')} href="/error-500">Error 500</a>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
                                 {/* End Collapse */}
-                                <div className="nav-item">
+                                {/* <div className="nav-item">
                                     <a className="nav-link " href="./api-keys.html" data-placement="left">
                                         <i className="bi-key nav-icon" />
                                         <span className="nav-link-title">API Keys</span>
@@ -370,7 +353,7 @@ export default function Sidebar() {
                                         <i className="bi-box-seam nav-icon" />
                                         <span className="nav-link-title">Landing Page <span className="badge bg-info rounded-pill ms-1">New</span></span>
                                     </a>
-                                </div>
+                                </div> */}
                             </div>
                             {/* End Collapse */}
                             <span className="dropdown-header mt-4">Apps</span>

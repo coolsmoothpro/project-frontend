@@ -13,14 +13,17 @@ export default function ProjectSetting() {
     const location = useLocation();
     const project = useSelector((state) => state.project) || null;
     const projectId = location.pathname.split('/').pop() || project?.id;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
     
     const [projectLogo, setProjectLogo] = useState("");
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
+    const [startDate, setStartDate] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [terms, setTerms] = useState("");
     const [expectedValue, setExpectedValue] = useState("");
     const [milestone, setMilestone] = useState("");
+    const [tasks, setTasks] = useState("");
     const [email, setEmail] = useState("");
 
     const handleFileChange = (event) => {
@@ -38,9 +41,17 @@ export default function ProjectSetting() {
         setProjectLogo(PROJECT_LOGO); 
     };
 
+    const handleTerms = (e) => {
+        setTerms(e.target.value);
+    }
+
+    const handleMilestone = (e) => {
+        setMilestone(e.target.value);
+    }
+
     const handleSave = async () => {
         const id = project?.id;
-        const { response } = await updateProject({ id, projectLogo, projectName, projectDescription, terms, expectedValue, milestone });
+        const { response } = await updateProject({ clientId, id, projectLogo, projectName, projectDescription, startDate, dueDate, terms, expectedValue, milestone, tasks });
 
         if (response.data.success) {
             toast.success("Project Detail has been updated!");
@@ -50,7 +61,7 @@ export default function ProjectSetting() {
     };
 
     const handleInvite = async () => {
-        const { response } = await sendInvite({email, projectName});
+        const { response } = await sendInvite({clientId, email, projectName});
 
         if (response.data.success) {
             toast.success("Invitation has been sent!");
@@ -79,9 +90,12 @@ export default function ProjectSetting() {
         setProjectLogo(project?.projectLogo);
         setProjectName(project?.projectName);
         setProjectDescription(project?.projectDescription);
+        setStartDate(project?.startDate);
+        setDueDate(project?.dueDate);
         setTerms(project?.terms);
         setExpectedValue(project?.expectedValue);
         setMilestone(project?.milestone);
+        setTasks(project?.tasks);
     }
 
     useEffect(() => {
@@ -191,19 +205,43 @@ export default function ProjectSetting() {
                             <div className="card-body">
                                 <div className="row">
                                     <div className="col-sm-6">
+                                        <div className="mb-4">
+                                            <label htmlFor="projectDeadlineNewProjectLabel" className="form-label">Start date</label>
+                                            <div id="projectDeadlineNewProject" className="input-group input-group-merge">
+                                                <div className="input-group-prepend input-group-text">
+                                                    <i className="bi-calendar-week" />
+                                                </div>
+                                                <input value={startDate} onChange={(e)=>setStartDate(e.target.value)} type="date" className="form-control" id="projectDeadlineNewProjectLabel" placeholder="Select dates" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-sm-6">
+                                        <div className="mb-4">
+                                            <label htmlFor="projectDeadlineNewProjectLabel" className="form-label">Due date</label>
+                                            <div id="projectDeadlineNewProject" className="input-group input-group-merge">
+                                                <div className="input-group-prepend input-group-text">
+                                                    <i className="bi-calendar-week" />
+                                                </div>
+                                                <input value={dueDate} onChange={(e)=>setDueDate(e.target.value)} type="date" className="form-control" id="projectDeadlineNewProjectLabel" placeholder="Select dates" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-sm-6">
                                         {/* Form */}
                                         <div className="mb-4">
                                             <label htmlFor="paymentTermsNewProjectLabel" className="form-label">Terms</label>
                                             {/* Select */}
                                             <div className="tom-select-custom">
-                                                <select value={terms} onChange={(e) => setTerms(e.target.value)} className="js-select form-select" id="paymentTermsNewProjectLabel" >
-                                                    <option value="fixed">Fixed</option>
-                                                    <option value="Per hour">Per hour</option>
-                                                    <option value="Per day">Per day</option>
-                                                    <option value="Per week">Per week</option>
-                                                    <option value="Per month" selected>Per month</option>
-                                                    <option value="Per quarter">Per quarter</option>
-                                                    <option value="Per year">Per year</option>
+                                                <select onChange={handleTerms} className="js-select form-select" id="paymentTermsNewProjectLabel" >
+                                                    <option selected={terms === "fixed"} value="fixed" >Fixed</option>
+                                                    <option selected={terms === "Per hour"} value="Per hour">Per hour</option>
+                                                    <option selected={terms === "Per day"} value="Per day">Per day</option>
+                                                    <option selected={terms === "Per week"} value="Per week">Per week</option>
+                                                    <option selected={terms === "Per month"} value="Per month">Per month</option>
+                                                    <option selected={terms === "Per quarter"} value="Per quarter">Per quarter</option>
+                                                    <option selected={terms === "Per year"} value="Per year">Per year</option>
                                                 </select>
                                             </div>
                                             {/* End Select */}
@@ -234,13 +272,13 @@ export default function ProjectSetting() {
                                             <label htmlFor="milestoneNewProjectLabel" className="form-label">Milestone <a className="fs-6 ms-1" href="javascript:;">Change probability</a></label>
                                             {/* Select */}
                                             <div className="tom-select-custom">
-                                                <select value={milestone} onChange={(e) => setMilestone(e.target.value)} className="js-select form-select" id="milestoneNewProjectLabel" >
-                                                    <option value="New">New</option>
-                                                    <option value="Qualified">Qualified</option>
-                                                    <option value="Meeting">Meeting</option>
-                                                    <option value="Proposal" selected>Proposal</option>
-                                                    <option value="Negotiation">Negotiation</option>
-                                                    <option value="Contact">Contact</option>
+                                                <select onChange={handleMilestone} className="js-select form-select" id="milestoneNewProjectLabel" >
+                                                    <option selected={terms === "New"} value="New">New</option>
+                                                    <option selected={terms === "Qualified"} value="Qualified">Qualified</option>
+                                                    <option selected={terms === "Meeting"} value="Meeting">Meeting</option>
+                                                    <option selected={terms === "Proposal"} value="Proposal">Proposal</option>
+                                                    <option selected={terms === "Negotiation"} value="Negotiation">Negotiation</option>
+                                                    <option selected={terms === "Contact"} value="Contact">Contact</option>
                                                 </select>
                                             </div>
                                             {/* End Select */}

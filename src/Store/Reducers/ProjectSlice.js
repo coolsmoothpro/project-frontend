@@ -7,6 +7,7 @@ const initialState = {
     projectName: "",
     projectDescription: "",
     dueDate: "",
+    startDate: "",
     attachedFiles: [],
     terms: "",
     expectedValue: "",
@@ -26,6 +27,7 @@ const ProjectSlice = createSlice({
             state.projectLogo = action.payload.projectLogo;
             state.projectName = action.payload.projectName;
             state.projectDescription = action.payload.projectDescription;
+            state.startDate = action.payload.startDate;
             state.dueDate = action.payload.dueDate;
             state.attachedFiles = action.payload.attachedFiles;
             state.terms = action.payload.terms;

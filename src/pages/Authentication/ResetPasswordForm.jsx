@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { resetAction } from '../../Api/auth';
+import { resetAction, subDomainResetAction } from '../../Api/auth';
 import { toast } from 'react-toastify';
+import { HOST_ULR, LOGO } from '../../utils/Constant';
 
 export default function ResetPasswordForm() {
-
+    const clientId = (HOST_ULR !== window.location.host) ? window.location.host.replace(`.${HOST_ULR}`, '') : "";
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordMatched, setPasswordMatched] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+    const [subDomainStatus, setSubDomainStatus] = useState(false);
+    const [subdomain, setSubDomain] = useState(false);
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(prevState => !prevState);
@@ -31,27 +34,50 @@ export default function ResetPasswordForm() {
 
         if (!passwordMatched) return;
 
-        const { response } = await resetAction({ email, password })
-        
-        if (response.data.success) {
-            toast.success(response.data.message);
-            navigate("/login");
+        if (subDomainStatus) {
+            const { response } = await subDomainResetAction({ subdomain, email, password })
+            
+            if (response.data.success) {
+                toast.success(response.data.message);
+                navigate("/login");
+            } else {
+                toast.error(response.data.message);
+            }
         } else {
-            toast.error(response.data.message);
+            const { response } = await resetAction({ email, password })
+            
+            if (response.data.success) {
+                toast.success(response.data.message);
+                navigate("/login");
+            } else {
+                toast.error(response.data.message);
+            }
         }
     };    
 
     useEffect(() => {
         if (password !== confirmPassword) setPasswordMatched(false);
         if (password === confirmPassword) setPasswordMatched(true);
+
     }, [password, confirmPassword]);
+
+    useEffect(() => {
+        
+        if (clientId) {
+            setSubDomainStatus(true);
+            setSubDomain(clientId);
+        } else {
+            setSubDomainStatus(false);
+        }
+
+    }, []);
 
     return (
         <>
             <main id="content" role="main" className="main">
                 <div className="container py-5 py-sm-7">
-                    <a className="d-flex justify-content-center mb-5" href="./index.html">
-                        <img className="zi-2" src="./assets/svg/logos/logo.svg" alt="Image Description" style={{ width: '8rem' }} />
+                    <a className="d-flex justify-content-center mb-5" href="javascript:;">
+                        <img className="zi-2" src={LOGO} alt="Image Description" style={{ width: '8rem' }} />
                     </a>
                     <div className="mx-auto" style={{ maxWidth: '30rem' }}>
                         {/* Card */}

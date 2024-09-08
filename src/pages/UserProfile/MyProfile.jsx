@@ -4,11 +4,28 @@ import { AVATAR } from '../../utils/Constant';
 
 export default function MyProfile() {
     const userData = JSON.parse(localStorage.getItem('user')) || null;
-
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);   
+    const [avatar, setAvatar] = useState("./assets/img/160x160/img1.jpg");
+    const [firstname, setFirstName] = useState("");
+    const [lastname, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [organization, setOrganization] = useState("");
+    const [department, setDepartment] = useState("");
+    const [accountType, setAccountType] = useState("");
+    const [location, setLocation] = useState({
+        country: "",
+        city: "",
+        state: ""
+    });
+    const [address1, setAddress1] = useState("");
+    const [address2, setAddress2] = useState("");
+    const [zipcode, setZipCode] = useState("");
+    
     const getCurrentUser = async () => {        
         const id = userData._id;
         if (id) {
-            const { response } = await currentUser({id});
+            const { response } = await currentUser({clientId, id});
 
             if (response.data.success) {
                 const data = response.data.user;
@@ -27,23 +44,6 @@ export default function MyProfile() {
             }
         }
     }    
-
-    const [avatar, setAvatar] = useState("./assets/img/160x160/img1.jpg");
-    const [firstname, setFirstName] = useState("");
-    const [lastname, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [organization, setOrganization] = useState("");
-    const [department, setDepartment] = useState("");
-    const [accountType, setAccountType] = useState("");
-    const [location, setLocation] = useState({
-        country: "",
-        city: "",
-        state: ""
-    });
-    const [address1, setAddress1] = useState("");
-    const [address2, setAddress2] = useState("");
-    const [zipcode, setZipCode] = useState("");
 
     useEffect(() => {
         getCurrentUser();

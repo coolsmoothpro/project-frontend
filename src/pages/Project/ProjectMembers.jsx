@@ -15,6 +15,7 @@ export default function ProjectMembers() {
     
     const projectId = location.pathname.split('/').pop();
     const project = useSelector((state) => state.project) || null;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const [update, setUpdate] = useState(false);
     const [users, setUsers] = useState([]);
@@ -28,7 +29,7 @@ export default function ProjectMembers() {
     // }
 
     const getUsers = async () => {
-        const { response } = await userList();
+        const { response } = await userList({clientId});
 
         if (response.data.success) {
             setUsers(response.data.users);
@@ -38,7 +39,7 @@ export default function ProjectMembers() {
     }
 
     const handleDeleteMember = async (email) => {
-        const { response } = await deleteMember({projectId, email});
+        const { response } = await deleteMember({clientId, projectId, email});
 
         if (response.data.success) {
             setUpdate(!update);
@@ -54,7 +55,7 @@ export default function ProjectMembers() {
 
     const handleInvite = async () => {
         const projectName = project?.projectName;
-        const { response } = await sendInvite({email, projectName});
+        const { response } = await sendInvite({clientId, email, projectName});
 
         if (response.data.success) {
             toast.success(response.data.message);

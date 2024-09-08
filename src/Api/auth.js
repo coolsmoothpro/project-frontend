@@ -149,3 +149,37 @@ export const setStatus = async (payload) => {
         throw err;  // Optionally re-throw to handle the error in the component
     }
 }
+
+export const subDomainLoginAction = async (payload) => {
+    try {
+        const response = await axios.post(`${SERVER_URL}/client/signin`, payload);
+        if (response.data && response.status == 200) {
+            const token = parseJwt(response.data.token);  // Assuming response structure
+            setToken(token);
+            return { response, token };  // This now correctly returns the user object
+
+        } else {
+            console.error('Login failed with status:', response);
+            return { response }
+        }
+    } catch (err) {
+        console.error('Error during login:', err);
+        throw err;  // Optionally re-throw to handle the error in the component
+    }
+}
+
+export const subDomainResetAction = async (payload) => {
+    try {
+        const response = await axios.post(`${SERVER_URL}/client/reset-password-action`, payload);
+        if (response.data && response.status == 200) {;
+            return { response };  // This now correctly returns the user object
+
+        } else {
+            console.error('Login failed with status:', response);
+            return { response }
+        }
+    } catch (err) {
+        console.error('Error during login:', err);
+        throw err;  // Optionally re-throw to handle the error in the component
+    }
+}

@@ -23,9 +23,9 @@ export const createProject = async (payload) => {
     }
 }
 
-export const projectList = async () => {
+export const projectList = async (payload) => {
     try {
-        const response = await axios.get(`${SERVER_URL}/project/list`);
+        const response = await axios.post(`${SERVER_URL}/project/list`, payload);
 
         if (response.data && response.status == 200) {
             
@@ -111,7 +111,6 @@ export const sendInvite = async (payload) => {
 
 export const acceptInvite = async (payload) => {
     try {
-        console.log('welcome');
         const response = await axios.post(`${SERVER_URL}/project/accept-invite`, payload);
 
         if (response.data && response.status == 200) {

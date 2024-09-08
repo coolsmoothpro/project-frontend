@@ -6,13 +6,14 @@ import { currentUser } from '../../Api/auth';
 export default function UserProfile() {
     const location = useLocation();
     const userId = location.pathname.split('/').pop();
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);   
 
     const [user, setUser] = useState(null);
 
     const getCurrentUser = async () => {
         const id = userId;
         if (id) {
-            const { response } = await currentUser({id});
+            const { response } = await currentUser({clientId, id});
 
             if (response.data.success) {
                 setUser(response.data.user);

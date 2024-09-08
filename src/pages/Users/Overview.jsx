@@ -3,10 +3,13 @@ import { userList } from '../../Api/user';
 import { toast } from 'react-toastify';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { updateUser, deleteUser } from '../../Api/auth';
+import { AVATAR } from '../../utils/Constant';
 
 
 export default function User() {
     const loggedUser = JSON.parse(localStorage.getItem('user'));
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
+
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState({});
@@ -31,7 +34,7 @@ export default function User() {
     const [update, setUpdate] = useState(false);
     
     const getUsers = async () => {
-        const { response } = await userList();
+        const { response } = await userList({clientId});
 
         if (response.data.success) {
             setUsers(response.data.users);
@@ -96,7 +99,7 @@ export default function User() {
 
     const handleSaveChange = async () => {
 
-        const { response } = await updateUser({_id, avatar, email, firstname, lastname, phone, organization, department, accountType, location, address1, address2, zipcode});
+        const { response } = await updateUser({clientId, _id, avatar, email, firstname, lastname, phone, organization, department, accountType, location, address1, address2, zipcode});
 
         if (response.data.success) {
             setUpdate(!update);
@@ -108,7 +111,7 @@ export default function User() {
     }
 
     const handleDeleteClick = async (id) => {
-        const { response } = await deleteUser({id});
+        const { response } = await deleteUser({clientId, id});
 
         if (response.data.success) {
             setUpdate(!update);
@@ -139,7 +142,7 @@ export default function User() {
                             <h1 className="page-header-title">Users</h1>
                         </div>
                         {/* End Col */}
-                        {(loggedUser?.role === "ADMIN" || loggedUser?.role === "ACCOUNT ADMIN") &&
+                        { (loggedUser?.role === "ADMIN" || loggedUser?.role === "ACCOUNT ADMIN") &&
                             <div className="col-sm-auto">
                                 <a className="btn btn-primary" onClick={() => navigate('/add-user')}>
                                     <i className="bi-person-plus-fill me-1" /> Add user
@@ -687,7 +690,7 @@ export default function User() {
                                     <td className="table-column-ps-0">
                                         <a className="d-flex align-items-center" href="javascript:;" onClick={()=>navigate(`/profile/${user._id}`)}>
                                             <div className="avatar avatar-circle">
-                                                <img className="avatar-img" src={user?.avatar || "./assets/img/160x160/img1.jpg"} alt="Image Description" />
+                                                <img className="avatar-img" src={user?.avatar || AVATAR} alt="Image Description" />
                                             </div>
                                             <div className="ms-3">
                                                 <span className="d-block h5 text-inherit mb-0">{user?.firstname} {user?.lastname} <i className="bi-patch-check-fill text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Top endorsed" /></span>

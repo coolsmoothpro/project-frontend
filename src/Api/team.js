@@ -19,9 +19,9 @@ export const createTeam = async (payload) => {
     }
 }
 
-export const teamList = async () => {
+export const teamList = async (payload) => {
     try {
-        const response = await axios.get(`${SERVER_URL}/team/list`);
+        const response = await axios.post(`${SERVER_URL}/team/list`, payload);
 
         if (response.data && response.status == 200) {
             

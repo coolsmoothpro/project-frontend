@@ -14,7 +14,7 @@ export default function Invoice() {
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
-                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;" onClick={() => navigate('/account-settings')}>Account</a></li>
+                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;" onClick={() =>navigate("/account-overview")}>Account</a></li>
                                     <li className="breadcrumb-item active" aria-current="page">Invoice</li>
                                 </ol>
                             </nav>

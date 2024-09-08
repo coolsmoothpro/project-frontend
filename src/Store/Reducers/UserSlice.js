@@ -35,6 +35,7 @@ const UserSlice = createSlice({
             state.loggedIn = false;
 
             localStorage.removeItem('user');
+            localStorage.removeItem('subdomain');
         }
     },
 });

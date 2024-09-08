@@ -11,6 +11,7 @@ export default function ProjectTeams() {
     const location = useLocation();
     const projectId = location.pathname.split('/').pop();
     const project = useSelector((state) => state.project) || null;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const [teamName, setTeamName] = useState("");
     const [teamDescription, setTeamDescription] = useState("");
@@ -21,7 +22,7 @@ export default function ProjectTeams() {
     const [teamId, setTeamId] = useState("");
     
     const getUsers = async () => {
-        const { response } = await userList();
+        const { response } = await userList({clientId});
 
         if (response.data.success) {
             setUsers(response.data.users);
@@ -35,7 +36,7 @@ export default function ProjectTeams() {
     }
 
     const handleSave = async () => {
-        const { response } = await createTeam({ teamName, teamDescription, member });
+        const { response } = await createTeam({ clientId, teamName, teamDescription, member });
 
         if (response.data.success) {
             setUpdate(!update);
@@ -47,7 +48,7 @@ export default function ProjectTeams() {
     }
 
     const getTeams = async () => {
-        const { response } = await teamList();
+        const { response } = await teamList({clientId});
 
         if (response.data.success) {
             setTeams(response.data.teams);
@@ -62,7 +63,7 @@ export default function ProjectTeams() {
     }
 
     const handleDelete = async () => {
-        const { response } = await deleteTeam({teamId});
+        const { response } = await deleteTeam({clientId, teamId});
 
         if (response.data.success) {
             navigate(0);

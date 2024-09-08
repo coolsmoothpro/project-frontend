@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { forgetPassword } from '../../Api/auth';
+import { HOST_ULR, LOGO } from '../../utils/Constant';
 
 export default function ResetPassword() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
+    const clientId = (HOST_ULR !== window.location.host) ? window.location.host.replace(`.${HOST_ULR}`, '') : "";
 
     const handleforgetPassword = async () => {
-        const { response } = await forgetPassword({email});
+        const { response } = await forgetPassword({clientId, email});
 
         if (response.data.success) {
             toast.success("Email has been sent!");
@@ -31,8 +33,8 @@ export default function ResetPassword() {
                 </div>
                 {/* Content */}
                 <div className="container py-5 py-sm-7">
-                    <a className="d-flex justify-content-center mb-5" href="./index.html">
-                        <img className="zi-2" src="./assets/svg/logos/logo.svg" alt="Image Description" style={{ width: '8rem' }} />
+                    <a className="d-flex justify-content-center mb-5" href="javascript:;">
+                        <img className="zi-2" src={LOGO} alt="Image Description" style={{ width: '8rem' }} />
                     </a>
                     <div className="mx-auto" style={{ maxWidth: '30rem' }}>
                         {/* Card */}

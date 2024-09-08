@@ -7,42 +7,49 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { toast } from 'react-toastify';
 
-import { createUser } from '../../Api/user';
-import { AVATAR } from '../../utils/Constant';
-import { useNavigate } from 'react-router-dom';
+import { clientList, createClient, getClient } from '../../Api/user';
+import { AVATAR, OC_HI_FIVE, PROFILE_COVER_IMG } from '../../utils/Constant';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const steps = ['Profile', 'Billing address', 'Confirmation'];
+const steps = ['Profile', 'Client Admin', 'Billing address', 'Confirmation'];
 
-export default function AddUser() {
-    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
-    const loggedUser = JSON.parse(localStorage.getItem('user'));
-
+export default function ClientProfile() {
     const navigate = useNavigate();
-    
+    const locate= useLocation();
     const [activeStep, setActiveStep] = React.useState(0);
     const [completed, setCompleted] = React.useState({});
 
     const [avatar, setAvatar] = useState();
+    const [client, setClientId] = useState(locate.pathname.split('/').pop() || null);
+    const [admins, setAdmins] = useState([
+        { firstname: '', lastname: '', email: '', adminPhone: '', disabled: false }
+    ]);
     const [firstname, setFirstName] = useState("");
     const [lastname, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [role, setRole] = useState("");
-    const [phone, setPhone] = useState("");
-    const [organization, setOrganization] = useState(clientId ? loggedUser.organization : "");
-    const [department, setDepartment] = useState("");
-    const [accountType, setAccountType] = useState("");
+    const [role, setRole] = useState("ADMIN");
+    const [clientPhone, setClientPhone] = useState("");
+    const [adminPhone, setAdminPhone] = useState("");
+    const [organization, setOrganization] = useState("");
+    const [website, setWebsite] = useState("");
     const [status, setStatus] = useState("Available");
     const [location, setLocation] = useState({
         country: "",
         city: "",
         state: ""
     });
+    const [address, setAddress] = useState("");
     const [address1, setAddress1] = useState("");
     const [address2, setAddress2] = useState("");
     const [zipcode, setZipCode] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordMatched, setPasswordMatched] = useState(false);
+    const [isChecked, setIsChecked] = useState(false);
+    const [clients, setClients] = useState([]);
+    const [isClient, setIsClient] = useState(false);
+    const [max5, setMax5] = useState(false);
+    const [profile, setProfile] = useState(null);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -57,10 +64,6 @@ export default function AddUser() {
     
     const handleResetAvatar = () => {
         setAvatar(); 
-    };
-
-    const handleAccountTypeChange = (event) => {
-        setAccountType(event.target.value);
     };
 
     const handleCountryChange = (event) => {
@@ -84,7 +87,21 @@ export default function AddUser() {
         });
     };
 
+    const handleCheckBox = (event) => {
+        setIsChecked(event.target.checked);
 
+        if (event.target.checked) setAddress1(address);
+        else setAddress1("");
+    }
+
+    const handleClientId = (event) => {
+        const is = clients?.find((client) => client.clientId === event.target.value.toLowerCase());
+
+        is ? setIsClient(true) : setIsClient(false);
+        event.target.value.length > 5 ? setMax5(true) : setMax5(false);
+
+        setClientId(event.target.value);
+    }
 
     const totalSteps = () => {
         return steps.length;
@@ -121,12 +138,45 @@ export default function AddUser() {
     };
 
     const handleComplete = async () => {
-        if (completedSteps() === totalSteps() - 1) {
+        if (activeStep === 0) {
+            if (!organization || !client || !address || !website) {
+                toast.warning("They are mandatory fields!");
+            return;
+            }
+        }
 
-            const { response } = await createUser({clientId, avatar, email, firstname, lastname, role, phone, organization, department, accountType, status, location, address1, address2, zipcode, password});
+        if (activeStep === 1) {
+            for (const admin of admins) {
+                if (!admin.firstname || !admin.lastname || !admin.email) {
+                    toast.warning("They are mandatory fields!");
+                    return;
+                }
+            }
+        }
+
+        if (activeStep === 2) {
+            if (!location.country || !location.city || !address1 || !zipcode) {
+                toast.warning("They are mandatory fields!");
+                    return;
+            }
+        }
+
+        if (completedSteps() === totalSteps() - 1) {
+            if (isClient) {
+                toast.error("This Id already existed!");
+                return;
+            }
+            if (max5) {
+                toast.error("The length should be max 5 characters!");
+                return;
+            }
+
+            const clientId = client.toLowerCase();
+            const { response } = await createClient({avatar, clientId, organization, address, website, clientPhone, admins, status, location, address1, address2, zipcode, role});
             
             if (response.data.success) {
-                toast.success("User has been created successfully!");
+                toast.success("Client has been created successfully!");
+                getClients();
             } else {
                 toast.error("Failed!");
                 return;
@@ -142,13 +192,16 @@ export default function AddUser() {
         setActiveStep(0);
         setCompleted({});
         setAvatar("");
+        setAdmins([]);
         setEmail("");
         setFirstName("");
         setLastName("");
+        setClientId("");
         setOrganization("");
-        setDepartment("");
-        setAccountType("");
-        setPhone("");
+        setClientPhone("");
+        setAdminPhone("");
+        setAddress("");
+        setWebsite("");
         setLocation({
             country: "",
             city: "",
@@ -159,12 +212,66 @@ export default function AddUser() {
         setZipCode("");
         setPassword("");
         setConfirmPassword("");
+        setIsChecked(false);
     };
+
+    const handleAddAdmin = () => {
+        setAdmins([...admins, { firstname: '', lastname: '', email: '', adminPhone: '', disabled: false }]);
+    };
+
+    const handleInputChange = (index, event) => {
+        const values = [...admins];
+        values[index][event.target.name] = event.target.value;
+        setAdmins(values);
+    };
+
+    const getClients = async () => {
+        const { response } = await clientList();
+    
+        if (response.data.success) {
+          setClients(response.data.clients);
+        }
+    }
+
+    const getClientByClientId = async () => {
+        const { response } = await getClient({client});
+
+        if (response.data.success) {
+            const profile = response.data.clients;
+            setOrganization(profile[0]?.organization);
+            setAddress(profile[0]?.address);
+            setWebsite(profile[0]?.website);
+            setClientPhone(profile[0]?.clientPhone);
+            setLocation({
+                country: profile[0]?.location.country,
+                city: profile[0]?.location.city,
+                state: profile[0]?.location.state
+            });
+            setAddress1(profile[0]?.address1);
+            setAddress2(profile[0]?.address2);
+            setZipCode(profile[0]?.zipcode);
+
+            setAdmins(profile?.map((item, index) => {
+                return {
+                    firstname: item?.firstname,
+                    lastname: item?.lastname,
+                    email: item?.email,
+                    adminPhone: item?.adminPhone,
+                    disabled: true
+                }
+            }));
+        }
+    }
 
     useEffect(() => {
         if (password !== confirmPassword) setPasswordMatched(false)
         if (password === confirmPassword) setPasswordMatched(true)
     }, [password, confirmPassword])
+
+    useEffect(() => {
+        getClients();
+        getClientByClientId();
+    }, [])
 
     return (
         <>
@@ -176,11 +283,11 @@ export default function AddUser() {
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
-                                    <li className="breadcrumb-item"><a className="breadcrumb-link" onClick={() =>navigate("/overview")} href="javascript:;">Users</a></li>
-                                    <li className="breadcrumb-item active" aria-current="page">Add User</li>
+                                    <li className="breadcrumb-item"><a className="breadcrumb-link" onClick={() =>navigate("/account-overview")} href="javascript:;">Account</a></li>
+                                    <li className="breadcrumb-item active" aria-current="page">Client Profile</li>
                                 </ol>
                             </nav>
-                            <h1 className="page-header-title">Add User</h1>
+                            <h1 className="page-header-title">Client Profile</h1>
                         </div>
                     </div>
                     {/* End Row */}
@@ -204,18 +311,18 @@ export default function AddUser() {
                                         <React.Fragment>
                                             <div id="successMessageContent" style={{marginTop:'2rem'}} >
                                                 <div className="text-center">
-                                                    <img className="img-fluid mb-3" src="./assets/svg/illustrations/oc-hi-five.svg" alt="Image Description" data-hs-theme-appearance="default" style={{ maxWidth: '15rem' }} />
+                                                    <img className="img-fluid mb-3" src={OC_HI_FIVE} alt="Image Description" data-hs-theme-appearance="default" style={{ maxWidth: '15rem' }} />
                                                     {/* <img className="img-fluid mb-3" src="./assets/svg/illustrations-light/oc-hi-five.svg" alt="Image Description" data-hs-theme-appearance="dark" style={{ maxWidth: '15rem' }} /> */}
                                                     <div className="mb-4">
                                                         <h2>Successful!</h2>
-                                                        <p>New <span className="fw-semibold text-dark">{firstname} {lastname}</span> user has been successfully created.</p>
+                                                        <p>New <span className="fw-semibold text-dark">{client} </span> admin has been successfully created.</p>
                                                     </div>
                                                     <div className="d-flex justify-content-center">
                                                         <a className="btn btn-white me-3" onClick={handleReset} >
-                                                            <i className="bi-chevron-left ms-1" /> Back to users
+                                                            <i className="bi-chevron-left ms-1" /> Back to client
                                                         </a>
                                                         <a className="btn btn-primary" onClick={handleReset}>
-                                                            <i className="bi-person-plus-fill me-1" /> Add new user
+                                                            <i className="bi-person-plus-fill me-1" /> Add new client
                                                         </a>
                                                     </div>
                                                 </div>
@@ -235,7 +342,7 @@ export default function AddUser() {
                                                                     <div className="d-flex align-items-center">
                                                                         {/* Avatar */}
                                                                         <label className="avatar avatar-xl avatar-circle avatar-uploader me-5" htmlFor="avatarUploader">
-                                                                            <img src={avatar || "./assets/img/160x160/img1.jpg"}  id="avatarImg" className="avatar-img" alt="Image Description" />
+                                                                            <img src={avatar || AVATAR}  id="avatarImg" className="avatar-img" alt="Image Description" />
                                                                             <input onChange={handleFileChange} type="file" className="js-file-attach avatar-uploader-input" id="avatarUploader" />
                                                                             <span className="avatar-uploader-trigger">
                                                                                 <i className="bi-pencil avatar-uploader-icon shadow-sm" />
@@ -245,29 +352,38 @@ export default function AddUser() {
                                                                         <button onClick={handleResetAvatar} type="button" className="js-file-attach-reset-img btn btn-white">Delete</button>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            {/* End Form */}
-                                                            {/* Form */}
+                                                            </div>                                                                                                                 
                                                             <div className="row mb-4">
-                                                                <label htmlFor="firstNameLabel" className="col-sm-3 col-form-label form-label">Full name <i className="bi-question-circle text-body ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Displayed on public forums, such as Front." /></label>
+                                                                <label htmlFor="organizationLabel" className="col-sm-3 col-form-label form-label">Organization</label>
+                                                                <div className="col-sm-9">
+                                                                    <input disabled onChange={(event) => setOrganization(event.target.value)} value={organization} type="text" className="form-control" name="organization" id="organizationLabel" placeholder="Organization Name" aria-label="Htmlstream" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="row mb-4">
+                                                                <label htmlFor="clientLabel" className="col-sm-3 col-form-label form-label">Client ID<i className="bi-question-circle text-body ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Displayed on public forums, such as Front." /></label>
                                                                 <div className="col-sm-9">
                                                                     <div className="input-group input-group-sm-vertical">
-                                                                        <input onChange={(event) => setFirstName(event.target.value)} value={firstname} type="text" className="form-control" name="firstName" id="firstNameLabel" placeholder="Clarice" aria-label="Clarice" />
-                                                                        <input onChange={(event) => setLastName(event.target.value)} value={lastname} type="text" className="form-control" name="lastName" id="lastNameLabel" placeholder="Boone" aria-label="Boone" />
+                                                                        <input disabled onChange={handleClientId} value={client} type="text" className="form-control" name="client" id="clientLabel" placeholder="Unique Max 5 Characters" aria-label="Clarice" />
                                                                     </div>
+                                                                    { isClient && <small className='text-danger'>This Id is already existed!</small>}
+                                                                    { max5 && <small className='text-danger'>The length should be max 5 characters!</small>}
                                                                 </div>
                                                             </div>
-                                                            {/* End Form */}
-                                                            {/* Form */}
                                                             <div className="row mb-4">
-                                                                <label htmlFor="emailLabel" className="col-sm-3 col-form-label form-label">Email</label>
+                                                                <label htmlFor="addressLine1Label" className="col-sm-3 col-form-label form-label">Address</label>
                                                                 <div className="col-sm-9">
-                                                                    <input onChange={(event) => setEmail(event.target.value)} value={email} type="email" className="form-control" name="email" id="emailLabel" placeholder="clarice@site.com" aria-label="clarice@site.com" />
+                                                                    <input disabled value={address} onChange={(event) => setAddress(event.target.value)} type="text" className="form-control" name="addressLine" id="addressLineLabel" placeholder="Your address" aria-label="Your address" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="row mb-4">
+                                                                <label htmlFor="websiteLabel" className="col-sm-3 col-form-label form-label">Website</label>
+                                                                <div className="col-sm-9">
+                                                                    <input disabled value={website} onChange={(event) => setWebsite(event.target.value)} type="text" className="form-control" name="website" id="websiteLabel" placeholder="Website url" aria-label="Website" />
                                                                 </div>
                                                             </div>
                                                             {/* End Form */}
                                                             {/* Form */}
-                                                            <div className="row mb-4">
+                                                            {/* <div className="row mb-4">
                                                                 <label htmlFor="locationLabel" className="col-sm-3 col-form-label form-label">Role</label>
                                                                 <div className="col-sm-9">
                                                                     <div className="tom-select-custom">
@@ -278,54 +394,100 @@ export default function AddUser() {
                                                                         </select>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                             <div className=" row mb-4" >
-                                                                <label htmlFor="phoneLabel" className="col-sm-3 col-form-label form-label">Phone <span className="form-label-secondary">(Optional)</span></label>
+                                                                <label htmlFor="phoneLabel" className="col-sm-3 col-form-label form-label">Client Phone <span className="form-label-secondary">(Optional)</span></label>
                                                                 <div className="col-sm-9">
                                                                     <div className="input-group input-group-sm-vertical">
-                                                                        <input onChange={(event) => setPhone(event.target.value)} value={phone} type="text" className="js-input-mask form-control" name="phone" id="phoneLabel" placeholder="+x(xxx)xxx-xx-xx" />
+                                                                        <input disabled onChange={(event) => setClientPhone(event.target.value)} value={clientPhone} type="text" className="js-input-mask form-control" name="phone" id="phoneLabel" placeholder="+x(xxx)xxx-xx-xx" />
                                                                     </div>                                                                    
                                                                 </div>
-                                                            </div>                                                          
-                                                            { !clientId && 
-                                                                <>
-                                                                    <div className="row mb-4">
-                                                                        <label htmlFor="organizationLabel" className="col-sm-3 col-form-label form-label">Organization</label>
-                                                                        <div className="col-sm-9">
-                                                                            <input onChange={(event) => setOrganization(event.target.value)} value={organization} type="text" className="form-control" name="organization" id="organizationLabel" placeholder="Htmlstream" aria-label="Htmlstream" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="row mb-4">
-                                                                        <label htmlFor="departmentLabel" className="col-sm-3 col-form-label form-label">Department</label>
-                                                                        <div className="col-sm-9">
-                                                                            <input onChange={(event) => setDepartment(event.target.value)} value={department} type="text" className="form-control" name="department" id="departmentLabel" placeholder="Human resources" aria-label="Human resources" />
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="row">
-                                                                        <label className="col-sm-3 col-form-label form-label">Account type</label>
-                                                                        <div className="col-sm-9">
-                                                                            <div className="input-group input-group-sm-vertical">
-                                                                                <label className="form-control" htmlFor="userAccountTypeRadio1">
-                                                                                    <span className="form-check">
-                                                                                        <input checked={accountType === "Individual"} onChange={handleAccountTypeChange} value="Individual" type="radio" className="form-check-input" name="userAccountTypeRadio" id="userAccountTypeRadio1" />
-                                                                                        <span className="form-check-label">Individual</span>
-                                                                                    </span>
-                                                                                </label>
-                                                                                <label className="form-control" htmlFor="userAccountTypeRadio2">
-                                                                                    <span className="form-check">
-                                                                                        <input checked={accountType === "Company"} onChange={handleAccountTypeChange} value="Company" type="radio" className="form-check-input" name="userAccountTypeRadio" id="userAccountTypeRadio2" />
-                                                                                        <span className="form-check-label">Company</span>
-                                                                                    </span>
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div> 
-                                                                </>
-                                                            }
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 }
                                                 {activeStep === 1 &&
+                                                    <div id="addClientAdmin" className="card card-lg">
+                                                        <div className="card-body">
+                                                            {admins?.map((admin, index) => (
+                                                                <div key={index}>
+                                                                    <div className="row mb-2">
+                                                                        <label htmlFor={`firstNameLabel-${index}`} className="col-sm-3 col-form-label form-label">
+                                                                            Full name <i className="bi-question-circle text-body ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Displayed on public forums, such as Front." />
+                                                                        </label>
+                                                                        <div className="col-sm-9">
+                                                                            <div className="input-group input-group-sm-vertical">
+                                                                                <input 
+                                                                                    onChange={(event) => handleInputChange(index, event)}
+                                                                                    value={admin.firstname}
+                                                                                    type="text"
+                                                                                    className="form-control"
+                                                                                    name="firstname"
+                                                                                    id={`firstNameLabel-${index}`}
+                                                                                    placeholder="First Name"
+                                                                                    aria-label="Clarice" 
+                                                                                    disabled={admin.disabled}
+                                                                                />
+                                                                                <input 
+                                                                                    onChange={(event) => handleInputChange(index, event)}
+                                                                                    value={admin.lastname}
+                                                                                    type="text"
+                                                                                    className="form-control"
+                                                                                    name="lastname"
+                                                                                    id={`lastNameLabel-${index}`}
+                                                                                    placeholder="Last Name"
+                                                                                    aria-label="Boone" 
+                                                                                    disabled={admin.disabled}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="row mb-2">
+                                                                        <label htmlFor={`emailLabel-${index}`} className="col-sm-3 col-form-label form-label">Email</label>
+                                                                        <div className="col-sm-9">
+                                                                            <input 
+                                                                                onChange={(event) => handleInputChange(index, event)}
+                                                                                value={admin.email}
+                                                                                type="email"
+                                                                                className="form-control"
+                                                                                name="email"
+                                                                                id={`emailLabel-${index}`}
+                                                                                placeholder="example@mail.com"
+                                                                                aria-label="example@mail.com" 
+                                                                                disabled={admin.disabled}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="row mb-5">
+                                                                        <label htmlFor={`phoneLabel-${index}`} className="col-sm-3 col-form-label form-label">
+                                                                            Admin Phone <span className="form-label-secondary">(Optional)</span>
+                                                                        </label>
+                                                                        <div className="col-sm-9">
+                                                                            <div className="input-group input-group-sm-vertical">
+                                                                                <input 
+                                                                                    onChange={(event) => handleInputChange(index, event)}
+                                                                                    value={admin.adminPhone}
+                                                                                    type="text"
+                                                                                    className="js-input-mask form-control"
+                                                                                    name="adminPhone"
+                                                                                    id={`phoneLabel-${index}`}
+                                                                                    placeholder="+x(xxx)xxx-xx-xx" 
+                                                                                    disabled={admin.disabled}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}                                             
+                                                            <div className="d-flex justify-content-end">
+                                                                <button type="button" className="btn btn-white btn-sm" onClick={handleAddAdmin}>Add more</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                {activeStep === 2 &&
                                                     <div id="addUserStepBillingAddress" className="card card-lg">
                                                         {/* Body */}
                                                         <div className="card-body">
@@ -335,7 +497,8 @@ export default function AddUser() {
                                                                 <div className="col-sm-9">
                                                                     {/* Select */}
                                                                     <div className="tom-select-custom mb-4">
-                                                                        <select value={location.country} onChange={handleCountryChange} className="js-select form-select" id="locationLabel" >
+                                                                        <select disabled value={location.country} onChange={handleCountryChange} className="js-select form-select" id="locationLabel" >
+                                                                            <option></option>
                                                                             <option value="AF" data-option-template="<span class=&quot;d-flex align-items-center&quot;><img class=&quot;avatar avatar-xss avatar-circle me-2&quot; src=&quot;./assets/vendor/flag-icon-css/flags/1x1/af.svg&quot; alt=&quot;Afghanistan Flag&quot; /><span class=&quot;text-truncate&quot;>Afghanistan</span></span>">Afghanistan</option>
                                                                             <option value="AX" data-option-template="<span class=&quot;d-flex align-items-center&quot;><img class=&quot;avatar avatar-xss avatar-circle me-2&quot; src=&quot;./assets/vendor/flag-icon-css/flags/1x1/ax.svg&quot; alt=&quot;Aland Islands Flag&quot; /><span class=&quot;text-truncate&quot;>Aland Islands</span></span>">Aland Islands</option>
                                                                             <option value="AL" data-option-template="<span class=&quot;d-flex align-items-center&quot;><img class=&quot;avatar avatar-xss avatar-circle me-2&quot; src=&quot;./assets/vendor/flag-icon-css/flags/1x1/al.svg&quot; alt=&quot;Albania Flag&quot; /><span class=&quot;text-truncate&quot;>Albania</span></span>">Albania</option>
@@ -590,9 +753,10 @@ export default function AddUser() {
                                                                     </div>
                                                                     {/* End Select */}
                                                                     <div className="mb-4">
-                                                                        <input value={location.city} onChange={handleCityChange} type="text" className="form-control" name="city" id="cityLabel" placeholder="City" aria-label="City" />
+                                                                        <input disabled value={location.city} onChange={handleCityChange} type="text" className="form-control" name="city" id="cityLabel" placeholder="City" aria-label="City" />
                                                                     </div>
-                                                                    <input value={location.state} onChange={handleStateChange} type="text" className="form-control" name="state" id="stateLabel" placeholder="State" aria-label="State" />
+                                                                    <input disabled value={location.state} onChange={handleStateChange} type="text" className="form-control" name="state" id="stateLabel" placeholder="State" aria-label="State" />
+                                                                    <span className="form-label-secondary">(Optional)</span>
                                                                 </div>
                                                             </div>
                                                             {/* End Form */}
@@ -600,20 +764,17 @@ export default function AddUser() {
                                                             <div className="row mb-4">
                                                                 <label htmlFor="addressLine1Label" className="col-sm-3 col-form-label form-label">Address line 1</label>
                                                                 <div className="col-sm-9">
-                                                                    <input value={address1} onChange={(event) => setAddress1(event.target.value)} type="text" className="form-control" name="addressLine1" id="addressLine1Label" placeholder="Your address" aria-label="Your address" />
+                                                                    <input disabled value={address1} onChange={(event) => setAddress1(event.target.value)} type="text" className="form-control" name="addressLine1" id="addressLine1Label" placeholder="Your address" aria-label="Your address" />
+                                                                    {/* <input value={isChecked} checked={isChecked} onChange={handleCheckBox} className="form-check-input" type="checkbox" defaultValue id="addressCheck" />
+                                                                    <small className='m-1'>Same Address with Profile?</small> */}
                                                                 </div>
                                                             </div>
                                                             {/* End Form */}
                                                             {/* Form */}
-                                                            <div className="js-add-field row mb-4" data-hs-add-field-options="{
-                            &quot;template&quot;: &quot;#addAddressFieldTemplate&quot;,
-                            &quot;container&quot;: &quot;#addAddressFieldContainer&quot;,
-                            &quot;defaultCreated&quot;: 0
-                          }">
+                                                            <div className="js-add-field row mb-4" >
                                                                 <label htmlFor="addressLine2Label" className="col-sm-3 col-form-label form-label">Address line 2 <span className="form-label-secondary">(Optional)</span></label>
                                                                 <div className="col-sm-9">
-                                                                    <input value={address2} onChange={(event) => setAddress2(event.target.value)} type="text" className="form-control" name="addressLine2" id="addressLine2Label" placeholder="Your address" aria-label="Your address" />
-                                                                    
+                                                                    <input disabled value={address2} onChange={(event) => setAddress2(event.target.value)} type="text" className="form-control" name="addressLine2" id="addressLine2Label" placeholder="Your address" aria-label="Your address" />
                                                                 </div>
                                                             </div>
                                                             {/* End Form */}
@@ -621,52 +782,20 @@ export default function AddUser() {
                                                             <div className="row mb-4">
                                                                 <label htmlFor="zipCodeLabel" className="col-sm-3 col-form-label form-label">Zip code <i className="bi-question-circle text-body ms-1" data-bs-toggle="tooltip" data-bs-placement="top" title="You can find your code in a postal address." /></label>
                                                                 <div className="col-sm-9">
-                                                                    <input value={zipcode} onChange={(event) => setZipCode(event.target.value)} type="text" className="js-input-mask form-control" name="zipCode" id="zipCodeLabel" placeholder="Your zip code" aria-label="Your zip code" data-hs-mask-options="{
-                                 &quot;mask&quot;: &quot;AA0 0AA&quot;
-                               }" />
+                                                                    <input disabled value={zipcode} onChange={(event) => setZipCode(event.target.value)} type="text" className="js-input-mask form-control" name="zipCode" id="zipCodeLabel" placeholder="Your zip code" aria-label="Your zip code"/>
                                                                 </div>
                                                             </div>
-                                                            <div className="row mb-4">
-                                                                <label className="col-sm-3 col-form-label form-label" htmlFor="signupSrPassword">Password</label>
-                                                                <div className="input-group col-sm-9" >
-                                                                    <input onChange={(event) => setPassword(event.target.value)} type="password" className="js-toggle-password form-control form-control-lg" name="password" id="signupSrPassword" placeholder="8+ characters required" aria-label="8+ characters required" required minLength={8} data-hs-toggle-password-options="{
-                                                &quot;target&quot;: [&quot;.js-toggle-password-target-1&quot;, &quot;.js-toggle-password-target-2&quot;],
-                                                &quot;defaultClass&quot;: &quot;bi-eye-slash&quot;,
-                                                &quot;showClass&quot;: &quot;bi-eye&quot;,
-                                                &quot;classChangeTarget&quot;: &quot;.js-toggle-password-show-icon-1&quot;
-                                                }" />
-                                                                    <a className="js-toggle-password-target-1 input-group-append input-group-text" href="javascript:;">
-                                                                        <i className="js-toggle-password-show-icon-1 bi-eye" />
-                                                                    </a>
-                                                                </div>
-                                                                <span className="invalid-feedback">Your password is invalid. Please try again.</span>
-                                                            </div>
-                                                            <div className="row mb-4">
-                                                                <label className="col-sm-3 col-form-label form-label" htmlFor="signupSrConfirmPassword">Confirm password</label>
-                                                                <div className="input-group col-sm-9">
-                                                                    <input  onChange={(event) => setConfirmPassword(event.target.value)} type="password" className="js-toggle-password form-control form-control-lg" name="confirmPassword" id="signupSrConfirmPassword" placeholder="8+ characters required" aria-label="8+ characters required" required minLength={8} data-hs-toggle-password-options="{
-                                                &quot;target&quot;: [&quot;.js-toggle-password-target-1&quot;, &quot;.js-toggle-password-target-2&quot;],
-                                                &quot;defaultClass&quot;: &quot;bi-eye-slash&quot;,
-                                                &quot;showClass&quot;: &quot;bi-eye&quot;,
-                                                &quot;classChangeTarget&quot;: &quot;.js-toggle-password-show-icon-2&quot;
-                                                }" />
-                                                                    <a className="js-toggle-password-target-2 input-group-append input-group-text" href="javascript:;">
-                                                                        <i className="js-toggle-password-show-icon-2 bi-eye" />
-                                                                    </a>
-                                                                </div>
-                                                                {!passwordMatched ? <p className="text-danger mb-0">Password does not confirmed</p> : ""}
-                                                            </div>
-                                                            {/* End Form */}
+                                                            
                                                         </div>
                                                         {/* End Body */}
                                                     </div>
                                                 }
-                                                {activeStep === 2 &&
+                                                {activeStep === 3 &&
                                                     <div id="addUserStepConfirmation" className="card card-lg">
                                                         {/* Profile Cover */}
                                                         <div className="profile-cover">
                                                             <div className="profile-cover-img-wrapper">
-                                                                <img className="profile-cover-img" src="./assets/img/1920x400/img1.jpg" alt="Image Description" />
+                                                                <img className="profile-cover-img" src={PROFILE_COVER_IMG} alt="Image Description" />
                                                             </div>
                                                         </div>
                                                         {/* End Profile Cover */}
@@ -678,20 +807,28 @@ export default function AddUser() {
                                                         {/* Body */}
                                                         <div className="card-body">
                                                             <dl className="row">
-                                                                <dt className="col-sm-6 text-sm-end">Full name:</dt>
-                                                                <dd className="col-sm-6">{firstname} {lastname}</dd>
-                                                                <dt className="col-sm-6 text-sm-end">Email:</dt>
-                                                                <dd className="col-sm-6">{email}</dd>
-                                                                <dt className="col-sm-6 text-sm-end">Phone:</dt>
-                                                                <dd className="col-sm-6">{phone}</dd>
                                                                 <dt className="col-sm-6 text-sm-end">Organization:</dt>
                                                                 <dd className="col-sm-6">{organization}</dd>
-                                                                { !clientId && <>
-                                                                    <dt className="col-sm-6 text-sm-end">Department:</dt>
-                                                                    <dd className="col-sm-6">{department}</dd>
-                                                                    <dt className="col-sm-6 text-sm-end">Account type:</dt>
-                                                                    <dd className="col-sm-6">{accountType}</dd>
-                                                                </>}
+                                                                <dt className="col-sm-6 text-sm-end">Client ID:</dt>
+                                                                <dd className="col-sm-6">{client} </dd>
+                                                                <dt className="col-sm-6 text-sm-end">Address:</dt>
+                                                                <dd className="col-sm-6">{address} </dd>
+                                                                <dt className="col-sm-6 text-sm-end">Website:</dt>
+                                                                <dd className="col-sm-6">{website} </dd>
+                                                                <dt className="col-sm-6 text-sm-end">Client Phone:</dt>
+                                                                <dd className="col-sm-6">{clientPhone}</dd>
+                                                                {
+                                                                    admins?.map((admin, index) => (
+                                                                        <>
+                                                                            <dt className="col-sm-6 text-sm-end">Admin FullName {index+1}:</dt>
+                                                                            <dd className="col-sm-6">{admin?.firstname} {admin?.lastname}</dd>                                                                
+                                                                            <dt className="col-sm-6 text-sm-end">Admin Email {index+1}:</dt>
+                                                                            <dd className="col-sm-6">{admin?.email}</dd>                                                                
+                                                                            <dt className="col-sm-6 text-sm-end">Admin Phone {index+1}:</dt>
+                                                                            <dd className="col-sm-6">{admin?.adminPhone}</dd>
+                                                                        </>
+                                                                    ))
+                                                                } 
                                                                 <dt className="col-sm-6 text-sm-end">Country:</dt>
                                                                 <dd className="col-sm-6">{location.country}</dd>
                                                                 <dt className="col-sm-6 text-sm-end">City:</dt>

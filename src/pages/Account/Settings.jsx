@@ -4,14 +4,17 @@ import { currentUser, updateUser, updatePassword } from '../../Api/auth';
 
 import { toast } from 'react-toastify';
 import { AVATAR } from '../../utils/Constant';
+import { useNavigate } from 'react-router-dom';
 
 export default function Settings() {    
+    const navigate = useNavigate();
     const userData = JSON.parse(localStorage.getItem('user')) || null;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const getCurrentUser = async () => {
         const id = userData._id;
         if (id) {
-            const { response } = await currentUser({id});
+            const { response } = await currentUser({clientId, id});
 
             if (response.data.success) {
                 const data = response.data.user;
@@ -102,7 +105,7 @@ export default function Settings() {
 
         const _id = userData._id;
 
-        const { response } = await updateUser({ _id, avatar, email, firstname, lastname, phone, organization, department, accountType, location, address1, address2, zipcode});
+        const { response } = await updateUser({ clientId, _id, avatar, email, firstname, lastname, phone, organization, department, accountType, location, address1, address2, zipcode});
 
         if (response.data.success) {
             toast.success("User has been updated successfully!");
@@ -117,7 +120,7 @@ export default function Settings() {
 
         const _id = userData._id;
 
-        const { response } = await updatePassword({_id, newPassword});
+        const { response } = await updatePassword({clientId, _id, newPassword});
 
         if (response.data.success) {
             toast.success("Password has been updated successfully!");
@@ -143,7 +146,7 @@ export default function Settings() {
                             <nav aria-label="breadcrumb">
                                 <ol className="breadcrumb breadcrumb-no-gutter">
                                     <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Pages</a></li>
-                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;">Account</a></li>
+                                    <li className="breadcrumb-item"><a className="breadcrumb-link" href="javascript:;" onClick={() =>navigate("/account-overview")}>Account</a></li>
                                     <li className="breadcrumb-item active" aria-current="page">Settings</li>
                                 </ol>
                             </nav>

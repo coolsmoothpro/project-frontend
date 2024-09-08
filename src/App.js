@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,6 +24,8 @@ import ProjectActivity from './pages/Project/ProjectActivity'
 import ProjectTeams from './pages/Project/ProjectTeams'
 import ProjectSetting from './pages/Project/ProjectSetting'
 import ProjectKanban from './pages/Project/ProjectKanban'
+import ProjectTaskList from './pages/Project/ProjectTaskList';
+import ProjectGantt from './pages/Project/ProjectGantt';
 import Settings from './pages/Account/Settings'
 import Billing from './pages/Account/Billing'
 import Invoice from './pages/Account/Invoice'
@@ -57,6 +59,11 @@ import Welcome from './pages/Welcome'
 import ResetPasswordForm from './pages/Authentication/ResetPasswordForm'
 import ProjectMembers from './pages/Project/ProjectMembers';
 import Email from './pages/Settings/Email';
+import AccountOverview from './pages/Account/Overview';
+import AddClient from './pages/Account/AddClient';
+import { HOST_ULR } from './utils/Constant';
+import { clientList } from './Api/user';
+import ClientProfile from './pages/Account/ClientProfile';
 
 export default function App() {
   const token = localStorage.getItem("token");
@@ -65,76 +72,142 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [subdomain, setSubDomain] = useState(null);
+  const [clients, setClients] = useState(null);
+
+  const getClients = async () => {
+    const { response } = await clientList();
+
+    if (response.data.success) {
+      setClients(response.data.clients);
+    }
+  }
+
   useEffect(() => {
+
     if (!token && window.location.pathname !== '/sign-up' && window.location.pathname !== '/reset-password' && window.location.pathname !== '/reset-password-form') {
       navigate("/login");
     }
 
-  }, [token, navigate])
+  }, [token, location.pathname, navigate]);
+
+  useEffect(() => {
+    getClients();
+
+  }, []);
 
   const shouldHideLayout = noLayoutRoutes.includes(location.pathname); 
+  const requestedClient = clients?.find((client) => client.clientId === subdomain);
 
   return (
     <div>
       <ToastContainer />
-      {!shouldHideLayout && <Navbar />}
-      <div className={shouldHideLayout ? '' : 'main-grid'}>
-        {!shouldHideLayout && <Sidebar />}
-        <main id="content" role="main" className="main">
-          <Routes>
-            <Route path='/' element={<Default />} />
-            <Route path='/overview' element={<Overview />} />
-            <Route path='/leaderboard' element={<Leaderboard />} />
-            <Route path='/add-user' element={<AddUser />} />
-            <Route path='/profile/:id' element={<UserProfile />} />
-            <Route path='/teams/:id' element={<Teams />} />
-            <Route path='/projectss/:id' element={<Projects />} />
-            <Route path='/connections/:id' element={<Connections />} />
-            <Route path='/my-profile' element={<MyProfile />} />
-            <Route path='/projects-overview' element={<ProjectsOverview />} />
-            <Route path='/projects-timeline' element={<Timeline />} />
-            <Route path='/projects-kanban' element={<ProjectsKanban />} />
-            <Route path='/project-overview/:id' element={<ProjectOverview />} />
-            <Route path='/project-files/:id' element={<ProjectFiles />} />
-            <Route path='/project-activity/:id' element={<ProjectActivity />} />
-            <Route path='/project-teams/:id' element={<ProjectTeams />} />
-            <Route path='/project-kanban/:id' element={<ProjectKanban />} />
-            <Route path='/project-setting/:id' element={<ProjectSetting />} />
-            <Route path='/project-members/:id' element={<ProjectMembers />} />
-            <Route path='/account-settings' element={<Settings />} />
-            <Route path='/account-billing' element={<Billing />} />
-            <Route path='/account-invoice' element={<Invoice />} />
-            <Route path='/settings-email' element={<Email />} />
-            <Route path='/ecommerce' element={<EcomOverview />} />
-            <Route path='/ecommerce-products' element={<EcommerceProducts />} />
-            <Route path='/ecommerce-products-details' element={<EcommerceProductsDetails />} />
-            <Route path='/ecommerce-add-product' element={<EcommerceAddProduct />} />
-            <Route path='/ecommerce-orders' element={<Orders />} />
-            <Route path='/ecommerce-order-details' element={<OrderDetails />} />
-            <Route path='/ecommerce-customer' element={<Customer />} />
-            <Route path='/ecommerce-customer-details' element={<CustomerDetails />} />
-            <Route path='/ecommerce-add-customer' element={<AddCustomer />} />
-            <Route path='/ecommerce-referrals' element={<EcommRefferal />} />
-            <Route path='/ecommerce-manage-reviews' element={<EcomManageReviews />} />
-            <Route path='/ecommerce-checkout' element={<EcommCheckout />} />
-            <Route path='/login' element={<SignIn />} />
-            <Route path='/sign-up' element={<SignUp />} />
-            <Route path='/reset-password' element={<ResetPassword />} />
-            <Route path='/reset-password-form' element={<ResetPasswordForm />} />
-            <Route path='/email-verification' element={<EmailVerification />} />
-            <Route path='/two-step-verification' element={<TwostepVerification />} />
-            <Route path='/kanban' element={<Kanban />} />
-            <Route path='/calender' element={<Calender />} />
-            <Route path='/invoice-generator' element={<InvoiceGenerator />} />
-            <Route path='/file-management' element={<Filemanagement />} />
-            <Route path='/error-404' element={<Error404 />} />
-            <Route path='/error-500' element={<Error500 />} />
-            <Route path='/welcome' element={<Welcome />} />
-            <Route path='*' element={<Default />} />
-          </Routes>
-          {!shouldHideLayout && <FooterOfPage />}
-        </main>
+      { requestedClient ?
+      <div>
+        {!shouldHideLayout && <Navbar />}
+        <div className={shouldHideLayout ? '' : 'main-grid'}>
+          {!shouldHideLayout && <Sidebar />}
+          <main id="content" role="main" className="main">
+            <Routes>
+              <Route path='/' element={<Default />} />
+              <Route path='/overview' element={<Overview />} />
+              <Route path='/leaderboard' element={<Leaderboard />} />
+              <Route path='/add-user' element={<AddUser />} />
+              <Route path='/profile/:id' element={<UserProfile />} />
+              <Route path='/teams/:id' element={<Teams />} />
+              <Route path='/projectss/:id' element={<Projects />} />
+              <Route path='/connections/:id' element={<Connections />} />
+              <Route path='/my-profile' element={<MyProfile />} />
+              <Route path='/projects-overview' element={<ProjectsOverview />} />
+              <Route path='/projects-timeline' element={<Timeline />} />
+              <Route path='/projects-kanban' element={<ProjectsKanban />} />
+              <Route path='/project-overview/:id' element={<ProjectOverview />} />
+              <Route path='/project-tasklist/:id' element={<ProjectTaskList />} />
+              <Route path='/project-files/:id' element={<ProjectFiles />} />
+              <Route path='/project-activity/:id' element={<ProjectActivity />} />
+              <Route path='/project-teams/:id' element={<ProjectTeams />} />
+              <Route path='/project-kanban/:id' element={<ProjectKanban />} />
+              <Route path='/project-gantt/:id' element={<ProjectGantt />} />
+              <Route path='/project-setting/:id' element={<ProjectSetting />} />
+              <Route path='/project-members/:id' element={<ProjectMembers />} />
+              <Route path='/account-settings' element={<Settings />} />
+              <Route path='/account-billing' element={<Billing />} />
+              <Route path='/account-invoice' element={<Invoice />} />
+              <Route path='/account-overview' element={<AccountOverview />} />
+              <Route path='/settings-email' element={<Email />} />
+              <Route path='/login' element={<SignIn />} />
+              <Route path='/reset-password-form' element={<ResetPasswordForm />} />
+            </Routes>
+            {!shouldHideLayout && <FooterOfPage />}
+          </main>
+        </div>
+      </div> :
+      <div>
+        {!shouldHideLayout && <Navbar />}
+        <div className={shouldHideLayout ? '' : 'main-grid'}>
+          {!shouldHideLayout && <Sidebar />}
+          <main id="content" role="main" className="main">
+            <Routes>
+              <Route path='/' element={<Default />} />
+              <Route path='/overview' element={<Overview />} />
+              <Route path='/leaderboard' element={<Leaderboard />} />
+              <Route path='/add-user' element={<AddUser />} />
+              <Route path='/profile/:id' element={<UserProfile />} />
+              <Route path='/teams/:id' element={<Teams />} />
+              <Route path='/projectss/:id' element={<Projects />} />
+              <Route path='/connections/:id' element={<Connections />} />
+              <Route path='/my-profile' element={<MyProfile />} />
+              <Route path='/projects-overview' element={<ProjectsOverview />} />
+              <Route path='/projects-timeline' element={<Timeline />} />
+              <Route path='/projects-kanban' element={<ProjectsKanban />} />
+              <Route path='/project-overview/:id' element={<ProjectOverview />} />
+              <Route path='/project-tasklist/:id' element={<ProjectTaskList />} />
+              <Route path='/project-files/:id' element={<ProjectFiles />} />
+              <Route path='/project-activity/:id' element={<ProjectActivity />} />
+              <Route path='/project-teams/:id' element={<ProjectTeams />} />
+              <Route path='/project-kanban/:id' element={<ProjectKanban />} />
+              <Route path='/project-gantt/:id' element={<ProjectGantt />} />
+              <Route path='/project-setting/:id' element={<ProjectSetting />} />
+              <Route path='/project-members/:id' element={<ProjectMembers />} />
+              <Route path='/account-settings' element={<Settings />} />
+              <Route path='/account-billing' element={<Billing />} />
+              <Route path='/account-invoice' element={<Invoice />} />
+              <Route path='/account-overview' element={<AccountOverview />} />
+              <Route path='/add-client' element={<AddClient />} />
+              <Route path='/client-profile/:id' element={<ClientProfile />} />
+              <Route path='/settings-email' element={<Email />} />
+              <Route path='/ecommerce' element={<EcomOverview />} />
+              <Route path='/ecommerce-products' element={<EcommerceProducts />} />
+              <Route path='/ecommerce-products-details' element={<EcommerceProductsDetails />} />
+              <Route path='/ecommerce-add-product' element={<EcommerceAddProduct />} />
+              <Route path='/ecommerce-orders' element={<Orders />} />
+              <Route path='/ecommerce-order-details' element={<OrderDetails />} />
+              <Route path='/ecommerce-customer' element={<Customer />} />
+              <Route path='/ecommerce-customer-details' element={<CustomerDetails />} />
+              <Route path='/ecommerce-add-customer' element={<AddCustomer />} />
+              <Route path='/ecommerce-referrals' element={<EcommRefferal />} />
+              <Route path='/ecommerce-manage-reviews' element={<EcomManageReviews />} />
+              <Route path='/ecommerce-checkout' element={<EcommCheckout />} />
+              <Route path='/login' element={<SignIn />} />
+              <Route path='/sign-up' element={<SignUp />} />
+              <Route path='/reset-password' element={<ResetPassword />} />
+              <Route path='/reset-password-form' element={<ResetPasswordForm />} />
+              <Route path='/email-verification' element={<EmailVerification />} />
+              <Route path='/two-step-verification' element={<TwostepVerification />} />
+              <Route path='/kanban' element={<Kanban />} />
+              <Route path='/calender' element={<Calender />} />
+              <Route path='/invoice-generator' element={<InvoiceGenerator />} />
+              <Route path='/file-management' element={<Filemanagement />} />
+              <Route path='/error-404' element={<Error404 />} />
+              <Route path='/error-500' element={<Error500 />} />
+              <Route path='/welcome' element={<Welcome />} />
+              <Route path='*' element={<Default />} />
+            </Routes>
+            {!shouldHideLayout && <FooterOfPage />}
+          </main>
+        </div>
       </div>
+      }
 
       {/* Keyboard Shortcuts */}
       <div className="offcanvas offcanvas-end" tabIndex={-1} id="offcanvasKeyboardShortcuts" aria-labelledby="offcanvasKeyboardShortcutsLabel">

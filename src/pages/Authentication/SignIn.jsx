@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { setUser } from '../../Store/Reducers/UserSlice';
-import { loginAction } from '../../Api/auth';
+import { loginAction, subDomainLoginAction } from '../../Api/auth';
 import { toast } from 'react-toastify';
+import { BASE_ULR, HOST_IP, HOST_ULR, LOGO } from '../../utils/Constant';
 
 export default function SignIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [subdomain, setSubDomain] = useState("");
+    const [subDomainStatus, setSubDomainStatus] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(prevState => !prevState);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setIsConfirmPasswordVisible(prevState => !prevState);
+    };
 
     const goToPage = (page) => {
         navigate(page);
@@ -17,20 +31,52 @@ export default function SignIn() {
 
     const loginHandle = async (event) => {
         event.preventDefault();
-        const { response, token } = await loginAction({ email, password })
-        if (token !== undefined) {
-            dispatch(setUser(response.data.user));
 
-            navigate("/");
+        if (subDomainStatus) {
+            const { response, token } = await subDomainLoginAction({ email, password, subdomain });
+
+            if (token !== undefined) {
+                dispatch(setUser(response.data.user));
+                
+                const subdomain = (HOST_ULR !== window.location.host) ? window.location.host.replace(`.${HOST_ULR}`, '') : "";
+                if (subdomain) localStorage.setItem('subdomain', subdomain);
+
+                navigate("/projects-overview");
+
+                setSubDomainStatus(false);
+
+            } else {
+                toast.error("Unauthorized user!");
+            }
         } else {
-            const _response = response
-            if (_response?.data)
-                toast.error("Login failed!")
-            else 
-                toast.error("Internal Server Error")
-        }
-      };
+            const { response, token } = await loginAction({ email, password });
+
+            if (token !== undefined) {
+                dispatch(setUser(response.data.user));
+
+                navigate("/");
+            } else {
+                toast.error("Unauthorized user!");
+            }
+        }        
+    };
     
+    useEffect(() => {
+        const host = window.location.host;
+        let prefix = null;
+        
+        if (host !== HOST_IP && host !== HOST_ULR) {
+            prefix = host.replace(`.${HOST_ULR}`, '');
+        }
+        
+        if (prefix) {
+            setSubDomainStatus(true);
+            setSubDomain(prefix);
+        } else {
+            setSubDomainStatus(false);
+        }
+
+    }, [navigate]);
 
     return (
         <>
@@ -46,8 +92,8 @@ export default function SignIn() {
                 </div>
                 {/* Content */}
                 <div className="container py-5 py-sm-7">
-                    <a className="d-flex justify-content-center mb-5" href="./index.html">
-                        <img className="zi-2" src="./assets/svg/logos/logo.svg" alt="Image Description" style={{ width: '8rem' }} />
+                    <a className="d-flex justify-content-center mb-5" href="javascript:;">
+                        <img className="zi-2" src={LOGO} alt="Image Description" style={{ width: '8rem' }} />
                     </a>
                     <div className="mx-auto" style={{ maxWidth: '30rem' }}>
                         {/* Card */}
@@ -58,17 +104,8 @@ export default function SignIn() {
                                     <div className="text-center">
                                         <div className="mb-5">
                                             <h1 className="display-5">Sign in</h1>
-                                            <p>Don't have an account yet? <a className="link" onClick={() => goToPage("/sign-up")}>Sign up here</a></p>
+                                            <p>Don't have an account yet? <a className="link" onClick={() => goToPage("/sign-up")} href='javascript:;'>Sign up here</a></p>
                                         </div>
-                                        <div className="d-grid mb-4">
-                                            <a className="btn btn-white btn-lg" href="#">
-                                                <span className="d-flex justify-content-center align-items-center">
-                                                    <img className="avatar avatar-xss me-2" src="./assets/svg/brands/google-icon.svg" alt="Image Description" />
-                                                    Sign in with Google
-                                                </span>
-                                            </a>
-                                        </div>
-                                        <span className="divider-center text-muted mb-4">OR</span>
                                     </div>
                                     {/* Form */}
                                     <div className="mb-4">
@@ -86,14 +123,12 @@ export default function SignIn() {
                                             </span>
                                         </label>
                                         <div className="input-group input-group-merge" data-hs-validation-validate-class>
-                                            <input onChange={(event) => setPassword(event.target.value)} type="password" className="js-toggle-password form-control form-control-lg" name="password" id="signupSrPassword" placeholder="8+ characters required" aria-label="8+ characters required" required minLength={8} data-hs-toggle-password-options="{
-                           &quot;target&quot;: &quot;#changePassTarget&quot;,
-                           &quot;defaultClass&quot;: &quot;bi-eye-slash&quot;,
-                           &quot;showClass&quot;: &quot;bi-eye&quot;,
-                           &quot;classChangeTarget&quot;: &quot;#changePassIcon&quot;
-                         }" />
-                                            <a id="changePassTarget" className="input-group-append input-group-text" href="javascript:;">
-                                                <i id="changePassIcon" className="bi-eye" />
+                                            <input onChange={(event) => setPassword(event.target.value)} type={isPasswordVisible ? "text" : "password"} className="js-toggle-password form-control form-control-lg" name="password" id="signupSrPassword" placeholder="password required" aria-label="8+ characters required" required minLength={8}  />
+                                            <a onClick={togglePasswordVisibility} className="js-toggle-password-target-1 input-group-append input-group-text" href="javascript:;">
+                                                <i 
+                                                    id="changePassIcon" 
+                                                    className={isPasswordVisible ? "bi-eye-slash" : "bi-eye"} 
+                                                />
                                             </a>
                                         </div>
                                         <span className="invalid-feedback">Please enter a valid password.</span>

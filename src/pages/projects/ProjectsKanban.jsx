@@ -10,6 +10,7 @@ export default function ProjectsKanban() {
     const navigate = useNavigate();
     const [projects, setProjects] = useState([]);
     const [status, setStatus] = useState(false);
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const [tasks, setTasks] = useState({
         todo: [],
@@ -93,7 +94,7 @@ export default function ProjectsKanban() {
 
         // Optionally update backend
         try {
-            const { response } = await updateProjectStatus({taskId, newStatus});
+            const { response } = await updateProjectStatus({clientId, taskId, newStatus});
 
             if (response.data.success) {
                 setStatus(!status);
@@ -108,7 +109,7 @@ export default function ProjectsKanban() {
     
 
     const getProjects = async () => {
-        const { response } = await projectList();
+        const { response } = await projectList({clientId});
 
         if (response.data.success) {
             const projectsByStatus = {

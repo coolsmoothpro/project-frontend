@@ -14,6 +14,7 @@ export default function Header() {
     const projectId = location.pathname.split('/').pop();
     const tab = location.pathname.split('/')[1];
     const project = useSelector((state) => state.project) || null;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
 
     const goToPage = (page) => {
         navigate(page);
@@ -24,7 +25,7 @@ export default function Header() {
     }
 
     const handleProject = async () => {
-        const { response } = await getProject({id});
+        const { response } = await getProject({clientId, id});
 
         dispatch(setProject(response.data.project));
     }
@@ -82,7 +83,7 @@ export default function Header() {
                             </div>
                         </div>
                         {
-                            tab === "project-overview" ? (
+                            tab === "project-tasklist" ? (
                                 <div className="col-sm-auto">
                                     <a  className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
                                         <i className="bi-plus me-1" /> Add task
@@ -150,7 +151,13 @@ export default function Header() {
                         <a className={getNavLinkClass('/project-overview')} onClick={() => { goToPage(`/project-overview/${id}`) }} >Overview</a>
                     </li>
                     <li className="nav-item">
+                        <a className={getNavLinkClass('/project-tasklist')} onClick={() => { goToPage(`/project-tasklist/${id}`) }} >Task List</a>
+                    </li>
+                    <li className="nav-item">
                         <a className={getNavLinkClass('/project-kanban')} onClick={() => { goToPage(`/project-kanban/${id}`) }} >Kanban</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={getNavLinkClass('/project-gantt')} onClick={() => { goToPage(`/project-gantt/${id}`) }} >Gantt</a>
                     </li>
                     <li className="nav-item">
                         <a className={getNavLinkClass('/project-activity')} onClick={() => { goToPage(`/project-activity/${id}`) }} >Activity</a>

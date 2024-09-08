@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { updatePassword } from '../../Api/auth';
+import { SMTP_PORT, SMTP_SERVER } from '../../utils/Constant';
 
 export default function Email() {
     const userData = JSON.parse(localStorage.getItem('user')) || null;
 
-    const [server, setServer] = useState("");
-    const [port, setPort] = useState("");
+    const [server, setServer] = useState(SMTP_SERVER);
+    const [port, setPort] = useState(SMTP_PORT);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");    
     const [passwordMatched, setPasswordMatched] = useState(false);
@@ -21,22 +22,14 @@ export default function Email() {
         setIsConfirmPasswordVisible(prevState => !prevState);
     };
 
-    const handleServerChange = (e) => {
-        setServer(e.target.value);
-    }
-
-    const handlePortChange = (e) => {
-        setPort(e.target.value);
-    }
-
     const handlePasswordChange = async () => {
         if (!server) {
-            toast.error('Select server!');
+            toast.error('Enter the server!');
             return;
         }
-
+        
         if (!port) {
-            toast.error('Select port!');
+            toast.error('Enter the port!');
             return;
         }
 
@@ -96,10 +89,7 @@ export default function Email() {
                                         <label htmlFor="currentPasswordLabel" className="col-sm-3 col-form-label form-label">SMTP Server</label>
                                         <div className="col-sm-9">
                                             <div className="tom-select-custom tom-select-custom-with-tags">
-                                                <select value={server} onChange={handleServerChange} className="js-select form-select" >
-                                                    <option value="">-Select Server-</option>
-                                                    <option value="mail.i.exd-int.com">mail.i.exd-int.com</option>
-                                                </select>
+                                                <input value={server} onChange={(e) => setServer(e.target.value)} type="text" className="form-control" />
                                             </div>
                                         </div>
                                     </div>
@@ -107,10 +97,7 @@ export default function Email() {
                                         <label htmlFor="currentPasswordLabel" className="col-sm-3 col-form-label form-label">SMTP Port</label>
                                         <div className="col-sm-9">
                                             <div className="tom-select-custom tom-select-custom-with-tags">
-                                                <select value={port} onChange={handlePortChange} className="js-select form-select" >
-                                                    <option value="">-Select Port-</option>
-                                                    <option value="465">465</option>
-                                                </select>
+                                                <input value={port} onChange={(e) => setPort(e.target.value)} type="text" className="form-control" />
                                             </div>
                                         </div>
                                     </div>

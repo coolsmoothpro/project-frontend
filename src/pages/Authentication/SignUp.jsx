@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { setUser } from '../../Store/Reducers/UserSlice';
 import { registerAction } from '../../Api/auth';
+import { LOGO } from '../../utils/Constant';
 
 export default function SignUp() {
     const [firstname, setFirstName] = useState("");
@@ -65,8 +66,8 @@ export default function SignUp() {
                 </div>
                 {/* Content */}
                 <div className="container py-5 py-sm-7">
-                    <a className="d-flex justify-content-center mb-5" href="./index.html">
-                        <img className="zi-2" src="./assets/svg/logos/logo.svg" alt="Image Description" style={{ width: '8rem' }} />
+                    <a className="d-flex justify-content-center mb-5" href='javascript:;'>
+                        <img className="zi-2" src={LOGO} alt="Image Description" style={{ width: '8rem' }} />
                     </a>
                     <div className="mx-auto" style={{ maxWidth: '30rem' }}>
                         {/* Card */}
@@ -77,17 +78,8 @@ export default function SignUp() {
                                     <div className="text-center">
                                         <div className="mb-5">
                                             <h1 className="display-5">Create your account</h1>
-                                            <p>Already have an account? <a className="link" onClick={() => navigate("/login")}>Sign in here</a></p>
+                                            <p>Already have an account? <a className="link" onClick={() => navigate("/login")} href='javascript:;'>Sign in here</a></p>
                                         </div>
-                                        <div className="d-grid mb-4">
-                                            <a className="btn btn-white btn-lg" href="#">
-                                                <span className="d-flex justify-content-center align-items-center">
-                                                    <img className="avatar avatar-xss me-2" src="./assets/svg/brands/google-icon.svg" alt="Image Description" />
-                                                    Sign up with Google
-                                                </span>
-                                            </a>
-                                        </div>
-                                        <span className="divider-center text-muted mb-4">OR</span>
                                     </div>
                                     <label className="form-label" htmlFor="fullNameSrEmail">Full name</label>
                                     {/* Form */}

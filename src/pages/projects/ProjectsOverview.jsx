@@ -15,18 +15,19 @@ import { toast } from 'react-toastify';
 import Header from './Components/Header';
 import { PROJECT_LOGO } from '../../utils/Constant';
 
-const steps = ['Details', 'Terms', 'Members'];
+const steps = ['Details', 'Terms'];
 
 export default function ProjectsOverview() {
     const navigate = useNavigate();
     const [activeStep, setActiveStep] = React.useState(0);
     const [completed, setCompleted] = React.useState({});
-    const modalRef = useRef(null);
 
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
     const [client, setClient] = useState("");
     const [projects, setProjects] = useState([]);
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
+    const [startDate, setStartDate] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [files, setFiles] = useState([]);
     const [attachedFiles, setAttachedFiles] = useState([]);
@@ -117,10 +118,12 @@ export default function ProjectsOverview() {
                 formData.append('files', file);
             });
             formData.append('attachedFiles', attachedFiles);
+            formData.append('clientId', clientId);
             formData.append('client', client);
             formData.append('projectLogo', projectLogo);
             formData.append('projectName', projectName);
             formData.append('projectDescription', projectDescription);
+            formData.append('startDate', startDate);
             formData.append('dueDate', dueDate);
             formData.append('terms', terms);
             formData.append('expectedValue', expectedValue);
@@ -152,6 +155,7 @@ export default function ProjectsOverview() {
         setClient("");
         setProjectName("");
         setProjectDescription("");
+        setStartDate("");
         setDueDate("");
         setAttachedFiles([]);
         setTerms("");
@@ -162,7 +166,7 @@ export default function ProjectsOverview() {
     };
 
     const getProjects = async () => {
-        const { response } = await projectList();
+        const { response } = await projectList({clientId});
 
         if (response.data.success) {
             setProjects(response.data.projects);
@@ -170,7 +174,7 @@ export default function ProjectsOverview() {
     }
 
     const handleInvite = async () => {
-        const { response } = await sendInvite({email, projectName});
+        const { response } = await sendInvite({clientId, email, projectName});
 
         if (response.data.success) {
             toast.success("Invitation has been sent!");
@@ -180,7 +184,7 @@ export default function ProjectsOverview() {
     }
 
     const handleDelete = async () => {
-        const { response } = await deleteProject({projectId});
+        const { response } = await deleteProject({clientId, projectId});
 
         if (response.data.success) {
             navigate(0);
@@ -706,8 +710,18 @@ export default function ProjectsOverview() {
                                                             </div>
                                                             {/* End Quill */}
                                                             <div className="row">
-                                                                <div className="col-sm-12">
-                                                                    {/* Form */}
+                                                                <div className="col-sm-6">
+                                                                    <div className="mb-4">
+                                                                        <label htmlFor="projectDeadlineNewProjectLabel" className="form-label">Start date</label>
+                                                                        <div id="projectDeadlineNewProject" className="input-group input-group-merge">
+                                                                            <div className="input-group-prepend input-group-text">
+                                                                                <i className="bi-calendar-week" />
+                                                                            </div>
+                                                                            <input value={startDate} onChange={(event) => setStartDate(event.target.value)} type="date" className="form-control" id="projectDeadlineNewProjectLabel" placeholder="Select dates" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-sm-6">
                                                                     <div className="mb-4">
                                                                         <label htmlFor="projectDeadlineNewProjectLabel" className="form-label">Due date</label>
                                                                         <div id="projectDeadlineNewProject" className="input-group input-group-merge">
@@ -717,7 +731,6 @@ export default function ProjectsOverview() {
                                                                             <input value={dueDate} onChange={(event) => setDueDate(event.target.value)} type="date" className="form-control" id="projectDeadlineNewProjectLabel" placeholder="Select dates" />
                                                                         </div>
                                                                     </div>
-                                                                    {/* End Form */}
                                                                 </div>
                                                                 {/* End Col */}
                                                                 {/* <div className="col-sm-6">
@@ -801,11 +814,9 @@ export default function ProjectsOverview() {
                                                                         <label htmlFor="paymentTermsNewProjectLabel" className="form-label">Terms</label>
                                                                         {/* Select */}
                                                                         <div className="tom-select-custom">
-                                                                            <select value={terms} onChange={(event) => setTerms(event.target.value)} className="js-select form-select" id="paymentTermsNewProjectLabel" data-hs-tom-select-options="{
-                                  &quot;searchInDropdown&quot;: false,
-                                  &quot;hideSearch&quot;: true
-                                }">
-                                                                                <option value="fixed" selected>Fixed</option>
+                                                                            <select onChange={(event) => setTerms(event.target.value)} className="js-select form-select" id="paymentTermsNewProjectLabel" >
+                                                                                <option value=""></option>
+                                                                                <option value="fixed">Fixed</option>
                                                                                 <option value="Per hour">Per hour</option>
                                                                                 <option value="Per day">Per day</option>
                                                                                 <option value="Per week">Per week</option>
@@ -842,10 +853,8 @@ export default function ProjectsOverview() {
                                                                         <label htmlFor="milestoneNewProjectLabel" className="form-label">Milestone <a className="small ms-1" href="javascript:;">Change probability</a></label>
                                                                         {/* Select */}
                                                                         <div className="tom-select-custom">
-                                                                            <select value={milestone} onChange={(event) => setMilestone(event.target.value)} className="js-select form-select" id="milestoneNewProjectLabel" data-hs-tom-select-options="{
-                                  &quot;searchInDropdown&quot;: false,
-                                  &quot;hideSearch&quot;: true
-                                }">
+                                                                            <select onChange={(event) => setMilestone(event.target.value)} className="js-select form-select">
+                                                                                <option value=""></option>
                                                                                 <option value="New">New</option>
                                                                                 <option value="Qualified">Qualified</option>
                                                                                 <option value="Meeting">Meeting</option>
@@ -892,7 +901,7 @@ export default function ProjectsOverview() {
                                                             </div> */}
                                                         </div>
                                                     }
-                                                    {activeStep === 2 &&
+                                                    {/* {activeStep === 2 &&
                                                         <div id="createProjectStepMembers">
                                                             <div className="mb-4">
                                                                 <div className="input-group mb-2 mb-sm-0">
@@ -904,7 +913,7 @@ export default function ProjectsOverview() {
                                                                 <a className="btn btn-primary w-100 d-sm-none" href="javascript:;">Invite</a>
                                                             </div>
                                                         </div>
-                                                    }
+                                                    } */}
                                                 </div>
                                                 <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                                                     <Button

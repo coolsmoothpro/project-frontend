@@ -15,6 +15,7 @@ export default function ProjectFiles() {
     const dispatch = useDispatch();
     const project = useSelector((state) => state.project) || null;
     const projectId = location.pathname.split('/').pop() || project?.id;
+    const [clientId, setClientId] = useState(localStorage.getItem('subdomain') || null);
     const [files, setFiles] = useState([]);
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [update, setUpdate] = useState(false);
@@ -57,7 +58,7 @@ export default function ProjectFiles() {
 
     const getProjectById = async () => {
         const id = projectId;
-        const { response } = await getProject({id});
+        const { response } = await getProject({clientId, id});
 
         dispatch(setProject(response.data.project));
     }
